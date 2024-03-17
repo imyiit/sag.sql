@@ -1,4 +1,4 @@
-import type { SqLiteType, DatabaseSetting } from "./database";
+import type { SqLiteType, DatabaseSetting } from ".";
 
 export class Setting<Value extends Record<string, SqLiteType>> {
   table: string;
