@@ -210,7 +210,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
 
   findOne(
     value: Partial<SqlReturnTypes<Value>>,
-    options?: Omit<OptionType<Value>, "limit">
+    options?: Omit<OptionType<Value>, "limit" | "get">
   ) {
     return this.find(value, options).get() as
       | Partial<SqlReturnTypes<Value>>
