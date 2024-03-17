@@ -8,8 +8,6 @@
 ![Image](https://nodei.co/npm/sag.sqlite.png?downloads=true&downloadRank=true&stars=true)
 <br>
 
-**sag.sqlite** is JSON database system.
-
 ## <i class="fa-solid fa-download"></i> **Installation**
 
 ```bash
