@@ -12,8 +12,8 @@ export type DatabaseSetting<Types extends Record<string, SqLiteType> = Record<st
     replace?: boolean;
 };
 type SqlReturnType<T> = T extends SqlProps<TEXT> ? string : T extends SqlProps<NONE> ? string | number | boolean : T extends SqlProps<NUMERIC> ? boolean | number | Date : number;
-type SqlReturnTypes<Obj> = {
-    [Key in keyof Obj]: Obj[Key] extends `${infer _} PRIMARY KEY` ? null : Obj[Key] extends `${infer _} NOT NULL` ? SqlReturnType<Obj[Key]> : SqlReturnType<Obj[Key]> | null;
+type SqlReturnTypes<Obj extends object> = {
+    [K in keyof Obj as Obj[K] extends `${infer _} PRIMARY KEY` ? never : K]: Obj[K] extends `${infer _} NOT NULL` ? SqlReturnType<Obj[K]> : SqlReturnType<Obj[K]> | null;
 };
 type LimitType = {
     max: number;

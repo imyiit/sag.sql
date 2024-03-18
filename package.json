@@ -1,6 +1,6 @@
 {
   "name": "sag.sqlite",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +17,8 @@
   "author": "baylit",
   "license": "MIT",
   "dependencies": {
-    "better-sqlite3": "^9.4.3"
+    "better-sqlite3": "^9.4.3",
+    "sag.sqlite": "link:"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.9",
