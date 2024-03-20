@@ -28,16 +28,13 @@ type REAL = "REAL" | "DOUBLE" | "DOUBLE PRECISION" | "FLOAT";
 
 type NONE = "BLOB";
 
+type AllSqlProps = TEXT | INTAGER | NUMERIC | REAL | NONE;
+
 type SqlProps<T extends string> = `${T}${" NOT NULL" | ""}${" UNIQUE" | ""}${
   | " PRIMARY KEY"
   | ""}`;
 
-export type SqLiteType =
-  | SqlProps<INTAGER>
-  | SqlProps<TEXT>
-  | SqlProps<REAL>
-  | SqlProps<NUMERIC>
-  | SqlProps<NONE>;
+export type SqLiteType = SqlProps<AllSqlProps>;
 
 export type DatabaseSetting<
   Types extends Record<string, SqLiteType> = Record<string, SqLiteType>
@@ -56,12 +53,18 @@ type SqlReturnType<T> = T extends SqlProps<TEXT>
   ? boolean | number | Date
   : number;
 
+type SqlReturnValueType<Val> = Val extends `${infer _} NOT NULL`
+  ? SqlReturnType<Val>
+  : SqlReturnType<Val> | null;
+
 type SqlReturnTypes<Obj extends object> = {
-  [K in keyof Obj as Obj[K] extends `${infer _} PRIMARY KEY`
-    ? never
-    : K]: Obj[K] extends `${infer _} NOT NULL`
-    ? SqlReturnType<Obj[K]>
-    : SqlReturnType<Obj[K]> | null;
+  [K in keyof Obj as Obj[K] extends AllSqlProps
+    ? K
+    : never]?: SqlReturnValueType<Obj[K]>;
+} & {
+  [K in keyof Obj as Obj[K] extends `${AllSqlProps} NOT NULL`
+    ? K
+    : never]: SqlReturnValueType<Obj[K]>;
 };
 
 type LimitType = {
