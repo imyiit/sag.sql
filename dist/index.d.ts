@@ -13,11 +13,13 @@ export type DatabaseSetting<Types extends Record<string, SqLiteType> = Record<st
     replace?: boolean;
 };
 type SqlReturnType<T> = T extends SqlProps<TEXT> ? string : T extends SqlProps<NONE> ? string | number | boolean : T extends SqlProps<NUMERIC> ? boolean | number | Date : number;
-type SqlReturnValueType<Val> = Val extends `${infer _} NOT NULL` ? SqlReturnType<Val> : SqlReturnType<Val> | null;
+type SqlReturnValueType<Val, NN> = NN extends true ? SqlReturnType<Val> : Val extends `${infer _} NOT NULL` ? SqlReturnType<Val> : SqlReturnType<Val> | null;
 type SqlReturnTypes<Obj extends object> = {
-    [K in keyof Obj as Obj[K] extends AllSqlProps ? K : never]?: SqlReturnValueType<Obj[K]>;
+    [K in keyof Obj as Obj[K] extends AllSqlProps ? K : never]?: SqlReturnValueType<Obj[K], false>;
 } & {
-    [K in keyof Obj as Obj[K] extends `${AllSqlProps} NOT NULL` ? K : never]: SqlReturnValueType<Obj[K]>;
+    [K in keyof Obj as Obj[K] extends `${AllSqlProps} NOT NULL` ? K : never]: SqlReturnValueType<Obj[K], false>;
+} & {
+    [K in keyof Obj as Obj[K] extends `${AllSqlProps} NOT NULL UNIQUE` ? K : never]: SqlReturnValueType<Obj[K], true>;
 };
 type LimitType = {
     max: number;
