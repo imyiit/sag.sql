@@ -71,6 +71,10 @@ type SqlReturnTypes<Obj extends object> = {
     ? K
     : never]?: SqlReturnValueType<Obj[K], false>;
 } & {
+  [K in keyof Obj as Obj[K] extends `${AllSqlProps} UNIQUE`
+    ? K
+    : never]?: SqlReturnValueType<Obj[K], false>;
+} & {
   [K in keyof Obj as Obj[K] extends `${AllSqlProps} NOT NULL`
     ? K
     : never]: SqlReturnValueType<Obj[K], false>;

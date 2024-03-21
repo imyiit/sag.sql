@@ -18,6 +18,8 @@ type SqlReturnValueType<Val, NN> = NN extends true ? SqlReturnType<Val> : Val ex
 type SqlReturnTypes<Obj extends object> = {
     [K in keyof Obj as Obj[K] extends AllSqlProps ? K : never]?: SqlReturnValueType<Obj[K], false>;
 } & {
+    [K in keyof Obj as Obj[K] extends `${AllSqlProps} UNIQUE` ? K : never]?: SqlReturnValueType<Obj[K], false>;
+} & {
     [K in keyof Obj as Obj[K] extends `${AllSqlProps} NOT NULL` ? K : never]: SqlReturnValueType<Obj[K], false>;
 } & {
     [K in keyof Obj as Obj[K] extends `${AllSqlProps} NOT NULL UNIQUE` ? K : never]: SqlReturnValueType<Obj[K], true>;

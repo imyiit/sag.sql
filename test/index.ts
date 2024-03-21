@@ -2,11 +2,15 @@ import { Database } from "../src";
 
 const db = new Database({
   types: {
-    id: "INTEGER NOT NULL PRIMARY KEY",
+    id: "INTEGER NOT NULL UNIQUE PRIMARY KEY",
     name: "TEXT",
-    age: "INTEGER",
+    surname: "TEXT",
+    age: "INTEGER NOT NULL",
+    code: "TEXT UNIQUE",
   },
+  replace: true,
 });
 
-db.set({ name: "Drogba" });
-db.add({ where: { name: "Drogba" }, value: { age: "+ 2" } });
+db.set({ name: "Yiğit", surname: "İğci", age: 22 });
+db.add({ value: { age: "++" } });
+const val = db.findOne({ name: "Yiğit" });
