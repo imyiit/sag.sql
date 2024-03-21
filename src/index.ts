@@ -1,6 +1,13 @@
 import sqlite3 from "better-sqlite3";
 
-import { CreateKey, InsertText, UpdateText, WhereText } from "./utils";
+import {
+  CreateKey,
+  InsertText,
+  UpdateText,
+  WhereText,
+  SagError,
+  SagErrorMsg,
+} from "./utils";
 
 type INTAGER =
   | "INT"
@@ -122,12 +129,16 @@ export class Database<Value extends Record<string, SqLiteType>> {
 
     const keys = CreateKey(this.types);
 
+    if (keys.length === 0)
+      throw new SagError("Database", SagErrorMsg.TypesZero);
+
     this.db = new sqlite3(`./${this.folder_name}.sqlite3`);
     this.db.exec(`CREATE TABLE IF NOT EXISTS ${this.table} (${keys})`);
   }
 
   set(value: SqlReturnTypes<Value>) {
     const { keys, values } = InsertText(value, this.types);
+    if (!keys || !values) return this;
     this.db.exec(
       `INSERT OR ${this.replace ? "REPLACE" : "IGNORE"} INTO ${
         this.table
@@ -167,12 +178,14 @@ export class Database<Value extends Record<string, SqLiteType>> {
                 if (vals && vals.length > 0) {
                   return vals.join(" OR ");
                 }
+                return "";
               }
               if (key === "and") {
                 const vals = options.orderBy[key];
                 if (vals && vals.length > 0) {
                   return vals.join(" AND ");
                 }
+                return "";
               }
               if (key === "in") {
                 const vals = options.orderBy[key];
@@ -187,6 +200,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
                     })
                     .join(" AND ");
                 }
+                return "";
               }
             })
             .join(" AND ")
@@ -235,10 +249,14 @@ export class Database<Value extends Record<string, SqLiteType>> {
     value: Partial<SqlReturnTypes<Value>>;
     limit?: LimitType;
   }) {
-    const where_text = WhereText(where, this.types);
     const values_text = UpdateText(value, this.types);
+    if (!values_text) throw new SagError("Update", SagErrorMsg.TypesZero);
+
+    const where_text = WhereText(where, this.types);
     this.db.exec(
-      `UPDATE ${this.table} SET ${values_text} WHERE ${where_text} ${
+      `UPDATE ${this.table} SET ${values_text} ${
+        where_text.length > 0 ? `WHERE ${where_text}` : ""
+      } ${
         limit
           ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
           : ""
@@ -251,12 +269,14 @@ export class Database<Value extends Record<string, SqLiteType>> {
     where,
     limit,
   }: {
-    where: Partial<SqlReturnTypes<Value>>;
+    where?: Partial<SqlReturnTypes<Value>>;
     limit?: LimitType;
   }) {
-    const where_text = WhereText(where, this.types);
+    const where_text = WhereText(where || {}, this.types);
     this.db.exec(
-      `DELETE FROM ${this.table} WHERE ${where_text} ${
+      `DELETE FROM ${this.table} ${
+        where_text.length > 0 ? `WHERE ${where_text}` : ""
+      } ${
         limit
           ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
           : ""
@@ -272,7 +292,6 @@ export class Database<Value extends Record<string, SqLiteType>> {
 
   all() {
     return this.db.prepare(`SELECT * FROM ${this.table}`).all() as
-      | SqlReturnTypes<Value>[]
-      | undefined;
+      | SqlReturnTypes<Value>[];
   }
 }

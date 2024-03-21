@@ -13,11 +13,15 @@ class Database {
         this.folder_name = folder_name;
         this.replace = replace;
         const keys = (0, utils_1.CreateKey)(this.types);
+        if (keys.length === 0)
+            throw new utils_1.SagError("Database", utils_1.SagErrorMsg.TypesZero);
         this.db = new better_sqlite3_1.default(`./${this.folder_name}.sqlite3`);
         this.db.exec(`CREATE TABLE IF NOT EXISTS ${this.table} (${keys})`);
     }
     set(value) {
         const { keys, values } = (0, utils_1.InsertText)(value, this.types);
+        if (!keys || !values)
+            return this;
         this.db.exec(`INSERT OR ${this.replace ? "REPLACE" : "IGNORE"} INTO ${this.table} (${keys}) VALUES (${values})`);
         return this;
     }
@@ -46,12 +50,14 @@ class Database {
                     if (vals && vals.length > 0) {
                         return vals.join(" OR ");
                     }
+                    return "";
                 }
                 if (key === "and") {
                     const vals = options.orderBy[key];
                     if (vals && vals.length > 0) {
                         return vals.join(" AND ");
                     }
+                    return "";
                 }
                 if (key === "in") {
                     const vals = options.orderBy[key];
@@ -64,6 +70,7 @@ class Database {
                         })
                             .join(" AND ");
                     }
+                    return "";
                 }
             })
                 .join(" AND ")
@@ -83,16 +90,18 @@ class Database {
         return this.find(value, options).get();
     }
     update({ where, value, limit, }) {
-        const where_text = (0, utils_1.WhereText)(where, this.types);
         const values_text = (0, utils_1.UpdateText)(value, this.types);
-        this.db.exec(`UPDATE ${this.table} SET ${values_text} WHERE ${where_text} ${limit
+        if (!values_text)
+            throw new utils_1.SagError("Update", utils_1.SagErrorMsg.TypesZero);
+        const where_text = (0, utils_1.WhereText)(where, this.types);
+        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${where_text.length > 0 ? `WHERE ${where_text}` : ""} ${limit
             ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
             : ""}`);
         return this;
     }
     delete({ where, limit, }) {
-        const where_text = (0, utils_1.WhereText)(where, this.types);
-        this.db.exec(`DELETE FROM ${this.table} WHERE ${where_text} ${limit
+        const where_text = (0, utils_1.WhereText)(where || {}, this.types);
+        this.db.exec(`DELETE FROM ${this.table} ${where_text.length > 0 ? `WHERE ${where_text}` : ""} ${limit
             ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
             : ""}`);
         return this;

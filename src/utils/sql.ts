@@ -18,7 +18,11 @@ export function InsertText(values: Object, types?: Record<string, string>) {
         const comma = curIndex !== array.length - 1 ? ", " : "";
         pre.keys += `${key}${comma}`;
         pre.values += `${
-          typeof type === "string" ? `'${type}'` : type
+          typeof type === "string"
+            ? `'${type}'`
+            : typeof type === "undefined"
+            ? null
+            : type
         }${comma}`;
         return pre;
       },
@@ -33,8 +37,12 @@ export function WhereText(value: Object, types: Record<string, string>) {
       if (types[key].includes("PRIMARY KEY")) return pre;
 
       const and = curIndex !== array.length - 1 ? " AND " : "";
-      pre += `${key} = ${
-        typeof value === "string" ? `'${value}'` : value
+      pre += `${key} ${
+        typeof value === "string"
+          ? `= '${value}'`
+          : !value
+          ? "is null"
+          : `= ${value}`
       }${and}`;
       return pre;
     }, "");
@@ -47,8 +55,12 @@ export function UpdateText(value: object, types?: Record<string, string>) {
       if (types && types[key].includes("PRIMARY KEY")) return pre;
 
       const comma = curIndex !== array.length - 1 ? ", " : "";
-      pre += `${key} = ${
-        typeof value === "string" ? `'${value}'` : value
+      pre += `${key} ${
+        typeof value === "string"
+          ? `= '${value}'`
+          : !value
+          ? "is null"
+          : `= ${value}`
       }${comma}`;
       return pre;
     }, "");

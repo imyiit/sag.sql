@@ -56,10 +56,10 @@ export declare class Database<Value extends Record<string, SqLiteType>> {
         limit?: LimitType;
     }): this;
     delete({ where, limit, }: {
-        where: Partial<SqlReturnTypes<Value>>;
+        where?: Partial<SqlReturnTypes<Value>>;
         limit?: LimitType;
     }): this;
     deleteAll(): this;
-    all(): SqlReturnTypes<Value>[] | undefined;
+    all(): SqlReturnTypes<Value>[];
 }
 export {};

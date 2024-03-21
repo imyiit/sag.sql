@@ -19,7 +19,11 @@ function InsertText(values, types) {
             return pre;
         const comma = curIndex !== array.length - 1 ? ", " : "";
         pre.keys += `${key}${comma}`;
-        pre.values += `${typeof type === "string" ? `'${type}'` : type}${comma}`;
+        pre.values += `${typeof type === "string"
+            ? `'${type}'`
+            : typeof type === "undefined"
+                ? null
+                : type}${comma}`;
         return pre;
     }, { keys: "", values: "" });
 }
@@ -31,7 +35,11 @@ function WhereText(value, types) {
         if (types[key].includes("PRIMARY KEY"))
             return pre;
         const and = curIndex !== array.length - 1 ? " AND " : "";
-        pre += `${key} = ${typeof value === "string" ? `'${value}'` : value}${and}`;
+        pre += `${key} ${typeof value === "string"
+            ? `= '${value}'`
+            : !value
+                ? "is null"
+                : `= ${value}`}${and}`;
         return pre;
     }, "");
 }
@@ -43,7 +51,11 @@ function UpdateText(value, types) {
         if (types && types[key].includes("PRIMARY KEY"))
             return pre;
         const comma = curIndex !== array.length - 1 ? ", " : "";
-        pre += `${key} = ${typeof value === "string" ? `'${value}'` : value}${comma}`;
+        pre += `${key} ${typeof value === "string"
+            ? `= '${value}'`
+            : !value
+                ? "is null"
+                : `= ${value}`}${comma}`;
         return pre;
     }, "");
 }
