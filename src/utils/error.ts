@@ -3,7 +3,7 @@ export enum SagErrorMsg {
   ValueZero = "Value need min one argument.",
 }
 
-type ErrorTypes = "Update" | "Set" | "Delete" | "Find" | "Database";
+type ErrorTypes = "Update" | "Set" | "Delete" | "Find" | "Database" | "Add";
 
 export class SagError extends Error {
   constructor(type: ErrorTypes, text: string) {

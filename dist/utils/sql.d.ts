@@ -5,3 +5,4 @@ export declare function InsertText(values: Object, types?: Record<string, string
 };
 export declare function WhereText(value: Object, types: Record<string, string>): string;
 export declare function UpdateText(value: object, types?: Record<string, string>): string;
+export declare function AddText(value: object, types?: Record<string, string>): string;

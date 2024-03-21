@@ -7,10 +7,10 @@ import {
   WhereText,
   SagError,
   SagErrorMsg,
+  AddText,
 } from "./utils";
 
 type INTAGER =
-  | "INT"
   | "INTEGER"
   | "TINYINT"
   | "SMALLINT"
@@ -35,8 +35,8 @@ type REAL = "REAL" | "DOUBLE" | "DOUBLE PRECISION" | "FLOAT";
 
 type NONE = "BLOB";
 
-type AllSqlProps = TEXT | INTAGER | NUMERIC | REAL | NONE;
-
+type AllNumericProps = INTAGER | NUMERIC | REAL;
+type AllSqlProps = TEXT | AllNumericProps | NONE;
 type SqlProps<T extends string> = `${T}${" NOT NULL" | ""}${" UNIQUE" | ""}${
   | " PRIMARY KEY"
   | ""}`;
@@ -80,21 +80,48 @@ type SqlReturnTypes<Obj extends object> = {
     : never]: SqlReturnValueType<Obj[K], true>;
 };
 
+type ArithmeticOperators = "+" | "-" | "/" | "*";
+
+type SqlAddReturnTypes<Obj extends object> = {
+  [K in keyof Obj as Obj[K] extends AllNumericProps ? K : never]?:
+    | `${ArithmeticOperators} ${(K extends string ? K : never) | number}`
+    | "++"
+    | "--";
+} & {
+  [K in keyof Obj as Obj[K] extends `${AllNumericProps} NOT NULL` ? K : never]:
+    | `${ArithmeticOperators} ${(K extends string ? K : never) | number}`
+    | "++"
+    | "--";
+} & {
+  [K in keyof Obj as Obj[K] extends `${AllNumericProps} NOT NULL UNIQUE`
+    ? K
+    : never]:
+    | `${ArithmeticOperators} ${
+        | (K extends AllNumericProps ? K : never)
+        | number}`
+    | "++"
+    | "--";
+};
+
 type LimitType = {
   max: number;
   offSet?: number;
 };
 
-type Operators = "=" | ">" | "<" | ">=" | "<=" | "<>";
+type ComparisonOperators = "=" | ">" | "<" | ">=" | "<=" | "<>";
 
 type OrderBy<Value> = {
-  or: `${keyof Value extends string ? keyof Value : never} ${Operators} ${
+  or: `${keyof Value extends string
+    ? keyof Value
+    : never} ${ComparisonOperators} ${
     | (keyof Value extends string ? keyof Value : never)
     | number
     | true
     | false
     | `'${string}'`}`[];
-  and: `${keyof Value extends string ? keyof Value : never} ${Operators} ${
+  and: `${keyof Value extends string
+    ? keyof Value
+    : never} ${ComparisonOperators} ${
     | (keyof Value extends string ? keyof Value : never)
     | number
     | true
@@ -245,14 +272,45 @@ export class Database<Value extends Record<string, SqLiteType>> {
     value,
     limit,
   }: {
-    where: Partial<SqlReturnTypes<Value>>;
-    value: Partial<SqlReturnTypes<Value>>;
+    where?: Partial<SqlReturnTypes<Value>>;
+    value?: Partial<SqlReturnTypes<Value>>;
     limit?: LimitType;
   }) {
-    const values_text = UpdateText(value, this.types);
-    if (!values_text) throw new SagError("Update", SagErrorMsg.TypesZero);
+    const values_text = UpdateText(value || {}, this.types);
 
-    const where_text = WhereText(where, this.types);
+    if (!values_text || values_text.length === 0) {
+      throw new SagError("Update", SagErrorMsg.ValueZero);
+    }
+
+    const where_text = WhereText(where || {}, this.types);
+    this.db.exec(
+      `UPDATE ${this.table} SET ${values_text} ${
+        where_text.length > 0 ? `WHERE ${where_text}` : ""
+      } ${
+        limit
+          ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
+          : ""
+      }`
+    );
+    return this;
+  }
+
+  add({
+    value,
+    where,
+    limit,
+  }: {
+    where?: Partial<SqlReturnTypes<Value>>;
+    value?: Partial<SqlAddReturnTypes<Value>>;
+    limit?: LimitType;
+  }) {
+    const values_text = AddText(value || {}, this.types);
+
+    if (!values_text || values_text.length === 0) {
+      throw new SagError("Add", SagErrorMsg.ValueZero);
+    }
+
+    const where_text = WhereText(where || {}, this.types);
     this.db.exec(
       `UPDATE ${this.table} SET ${values_text} ${
         where_text.length > 0 ? `WHERE ${where_text}` : ""

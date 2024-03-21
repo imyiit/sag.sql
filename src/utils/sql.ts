@@ -65,3 +65,28 @@ export function UpdateText(value: object, types?: Record<string, string>) {
       return pre;
     }, "");
 }
+
+export function AddText(value: object, types?: Record<string, string>) {
+  return Object.entries(value as Record<string, string>)
+    .sort()
+    .reduce((pre, [key, value], curIndex, array) => {
+      if (types && types[key].includes("PRIMARY KEY")) return pre;
+
+      const comma = curIndex !== array.length - 1 ? ", " : "";
+
+      if (value.trim() === "++" || value.trim() === "--") {
+        let value_text = "";
+        if (value.trim() === "++") {
+          value_text = "+ 1";
+        } else {
+          value_text = "- 1";
+        }
+
+        pre += `${key} = IFNULL(${key}, 1) ${value_text} ${comma}`;
+        return pre;
+      }
+
+      pre += `${key} = IFNULL(${key}, 1) ${value} ${comma}`;
+      return pre;
+    }, "");
+}

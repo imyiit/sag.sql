@@ -90,10 +90,22 @@ class Database {
         return this.find(value, options).get();
     }
     update({ where, value, limit, }) {
-        const values_text = (0, utils_1.UpdateText)(value, this.types);
-        if (!values_text)
-            throw new utils_1.SagError("Update", utils_1.SagErrorMsg.TypesZero);
-        const where_text = (0, utils_1.WhereText)(where, this.types);
+        const values_text = (0, utils_1.UpdateText)(value || {}, this.types);
+        if (!values_text || values_text.length === 0) {
+            throw new utils_1.SagError("Update", utils_1.SagErrorMsg.ValueZero);
+        }
+        const where_text = (0, utils_1.WhereText)(where || {}, this.types);
+        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${where_text.length > 0 ? `WHERE ${where_text}` : ""} ${limit
+            ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
+            : ""}`);
+        return this;
+    }
+    add({ value, where, limit, }) {
+        const values_text = (0, utils_1.AddText)(value || {}, this.types);
+        if (!values_text || values_text.length === 0) {
+            throw new utils_1.SagError("Add", utils_1.SagErrorMsg.ValueZero);
+        }
+        const where_text = (0, utils_1.WhereText)(where || {}, this.types);
         this.db.exec(`UPDATE ${this.table} SET ${values_text} ${where_text.length > 0 ? `WHERE ${where_text}` : ""} ${limit
             ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
             : ""}`);

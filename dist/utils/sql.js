@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateText = exports.WhereText = exports.InsertText = exports.CreateKey = void 0;
+exports.AddText = exports.UpdateText = exports.WhereText = exports.InsertText = exports.CreateKey = void 0;
 function CreateKey(values) {
     return Object.entries(values)
         .sort()
@@ -60,3 +60,26 @@ function UpdateText(value, types) {
     }, "");
 }
 exports.UpdateText = UpdateText;
+function AddText(value, types) {
+    return Object.entries(value)
+        .sort()
+        .reduce((pre, [key, value], curIndex, array) => {
+        if (types && types[key].includes("PRIMARY KEY"))
+            return pre;
+        const comma = curIndex !== array.length - 1 ? ", " : "";
+        if (value.trim() === "++" || value.trim() === "--") {
+            let value_text = "";
+            if (value.trim() === "++") {
+                value_text = "+ 1";
+            }
+            else {
+                value_text = "- 1";
+            }
+            pre += `${key} = IFNULL(${key}, 1) ${value_text} ${comma}`;
+            return pre;
+        }
+        pre += `${key} = IFNULL(${key}, 1) ${value} ${comma}`;
+        return pre;
+    }, "");
+}
+exports.AddText = AddText;
