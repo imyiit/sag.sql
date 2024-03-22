@@ -92,6 +92,11 @@ type SqlAddReturnTypes<Obj extends object> = {
     | "++"
     | "--";
 } & {
+  [K in keyof Obj as Obj[K] extends `${AllNumericProps} UNIQUE` ? K : never]?:
+    | `${ArithmeticOperators} ${(K extends string ? K : never) | number}`
+    | "++"
+    | "--";
+} & {
   [K in keyof Obj as Obj[K] extends `${AllNumericProps} NOT NULL` ? K : never]:
     | `${ArithmeticOperators} ${(K extends string ? K : never) | number}`
     | "++"
