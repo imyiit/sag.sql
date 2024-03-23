@@ -40,48 +40,9 @@ class Database {
                     return pre;
                 }, "")
             : "*";
-        const orderBy = options && options.orderBy
-            ? Object.keys(options.orderBy)
-                .map((key) => {
-                if (!options.orderBy)
-                    return "";
-                if (key === "or") {
-                    const vals = options.orderBy[key];
-                    if (vals && vals.length > 0) {
-                        return vals.join(" OR ");
-                    }
-                    return "";
-                }
-                if (key === "and") {
-                    const vals = options.orderBy[key];
-                    if (vals && vals.length > 0) {
-                        return vals.join(" AND ");
-                    }
-                    return "";
-                }
-                if (key === "in") {
-                    const vals = options.orderBy[key];
-                    if (vals && vals.length > 0) {
-                        return vals
-                            .map((val) => {
-                            return `${val.key.toString()} IN (${val.list
-                                .map((item) => typeof item === "string" ? `'${item}'` : item)
-                                .join(",")})`;
-                        })
-                            .join(" AND ");
-                    }
-                    return "";
-                }
-            })
-                .join(" AND ")
-            : "";
-        return this.db.prepare(`SELECT ${get} FROM ${this.table} ${where_text.length > 0 || orderBy.length > 0 ? "WHERE" : ""} ${where_text.length > 0 ? `${where_text}` : ""} ${orderBy.length > 0
-            ? where_text.length > 0
-                ? `AND ${orderBy}`
-                : orderBy
-            : ""} ${options && options.limit
-            ? `LIMIT ${options.limit.max} ${options.limit.offSet ? `OFFSET ${options.limit.offSet}` : ""}`
-            : ""}`);
+        const filter = options && options.filter ? (0, utils_1.FilterText)(options.filter) : "";
+        const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
+        return this.db.prepare(`SELECT ${get} FROM ${this.table} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
     }
     findAll(value, options) {
         return this.find(value, options).all();
@@ -89,33 +50,33 @@ class Database {
     findOne(value, options) {
         return this.find(value, options).get();
     }
-    update({ where, value, limit, }) {
+    update({ where, value, }, options) {
         const values_text = (0, utils_1.UpdateText)(value || {}, this.types);
         if (!values_text || values_text.length === 0) {
             throw new utils_1.SagError("Update", utils_1.SagErrorMsg.ValueZero);
         }
+        const filter = options && options.filter ? (0, utils_1.FilterText)(options.filter) : "";
         const where_text = (0, utils_1.WhereText)(where || {}, this.types);
-        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${where_text.length > 0 ? `WHERE ${where_text}` : ""} ${limit
-            ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
-            : ""}`);
+        const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
+        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
         return this;
     }
-    add({ value, where, limit, }) {
+    add({ value, where, }, options) {
         const values_text = (0, utils_1.AddText)(value || {}, this.types);
         if (!values_text || values_text.length === 0) {
             throw new utils_1.SagError("Add", utils_1.SagErrorMsg.ValueZero);
         }
         const where_text = (0, utils_1.WhereText)(where || {}, this.types);
-        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${where_text.length > 0 ? `WHERE ${where_text}` : ""} ${limit
-            ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
-            : ""}`);
+        const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
+        const filter = options && options.filter ? (0, utils_1.FilterText)(options.filter) : "";
+        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
         return this;
     }
-    delete({ where, limit, }) {
+    delete(where, options) {
         const where_text = (0, utils_1.WhereText)(where || {}, this.types);
-        this.db.exec(`DELETE FROM ${this.table} ${where_text.length > 0 ? `WHERE ${where_text}` : ""} ${limit
-            ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
-            : ""}`);
+        const filter = options && options.filter ? (0, utils_1.FilterText)(options.filter) : "";
+        const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
+        this.db.exec(`DELETE FROM ${this.table} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
         return this;
     }
     deleteAll() {

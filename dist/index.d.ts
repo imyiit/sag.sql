@@ -34,12 +34,12 @@ type SqlAddReturnTypes<Obj extends object> = {
 } & {
     [K in keyof Obj as Obj[K] extends `${AllNumericProps} NOT NULL UNIQUE` ? K : never]: `${ArithmeticOperators} ${(K extends AllNumericProps ? K : never) | number}` | "++" | "--";
 };
-type LimitType = {
+export type LimitType = {
     max: number;
     offSet?: number;
 };
 type ComparisonOperators = "=" | ">" | "<" | ">=" | "<=" | "<>";
-type OrderBy<Value> = {
+export type FilterOptions<Value> = {
     or: `${keyof Value extends string ? keyof Value : never} ${ComparisonOperators} ${(keyof Value extends string ? keyof Value : never) | number | true | false | `'${string}'`}`[];
     and: `${keyof Value extends string ? keyof Value : never} ${ComparisonOperators} ${(keyof Value extends string ? keyof Value : never) | number | true | false | `'${string}'`}`[];
     in: {
@@ -50,7 +50,7 @@ type OrderBy<Value> = {
 type OptionType<Value> = {
     get?: "all" | (keyof Value)[];
     limit?: LimitType;
-    orderBy?: Partial<OrderBy<Value>>;
+    filter?: Partial<FilterOptions<Value>>;
 };
 export declare class Database<Value extends Record<string, SqLiteType>> {
     private table;
@@ -63,20 +63,15 @@ export declare class Database<Value extends Record<string, SqLiteType>> {
     private find;
     findAll(value: Partial<SqlReturnTypes<Value>>, options?: OptionType<Value>): [] | Partial<SqlReturnTypes<Value>>[];
     findOne(value: Partial<SqlReturnTypes<Value>>, options?: Omit<OptionType<Value>, "limit" | "get">): Partial<SqlReturnTypes<Value>> | undefined;
-    update({ where, value, limit, }: {
+    update({ where, value, }: {
         where?: Partial<SqlReturnTypes<Value>>;
         value?: Partial<SqlReturnTypes<Value>>;
-        limit?: LimitType;
-    }): this;
-    add({ value, where, limit, }: {
+    }, options?: Omit<OptionType<Value>, "get">): this;
+    add({ value, where, }: {
         where?: Partial<SqlReturnTypes<Value>>;
         value?: Partial<SqlAddReturnTypes<Value>>;
-        limit?: LimitType;
-    }): this;
-    delete({ where, limit, }: {
-        where?: Partial<SqlReturnTypes<Value>>;
-        limit?: LimitType;
-    }): this;
+    }, options?: Omit<OptionType<Value>, "get">): this;
+    delete(where?: Partial<SqlReturnTypes<Value>>, options?: Omit<OptionType<Value>, "get">): this;
     deleteAll(): this;
     all(): SqlReturnTypes<Value>[];
 }

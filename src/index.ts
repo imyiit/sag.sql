@@ -8,6 +8,9 @@ import {
   SagError,
   SagErrorMsg,
   AddText,
+  FilterText,
+  WhereWithFilter,
+  LimitText,
 } from "./utils";
 
 type INTAGER =
@@ -112,14 +115,14 @@ type SqlAddReturnTypes<Obj extends object> = {
     | "--";
 };
 
-type LimitType = {
+export type LimitType = {
   max: number;
   offSet?: number;
 };
 
 type ComparisonOperators = "=" | ">" | "<" | ">=" | "<=" | "<>";
 
-type OrderBy<Value> = {
+export type FilterOptions<Value> = {
   or: `${keyof Value extends string
     ? keyof Value
     : never} ${ComparisonOperators} ${
@@ -142,7 +145,7 @@ type OrderBy<Value> = {
 type OptionType<Value> = {
   get?: "all" | (keyof Value)[];
   limit?: LimitType;
-  orderBy?: Partial<OrderBy<Value>>;
+  filter?: Partial<FilterOptions<Value>>;
 };
 
 export class Database<Value extends Record<string, SqLiteType>> {
@@ -204,60 +207,14 @@ export class Database<Value extends Record<string, SqLiteType>> {
               }, "")
         : "*";
 
-    const orderBy =
-      options && options.orderBy
-        ? Object.keys(options.orderBy)
-            .map((key) => {
-              if (!options.orderBy) return "";
-              if (key === "or") {
-                const vals = options.orderBy[key];
-                if (vals && vals.length > 0) {
-                  return vals.join(" OR ");
-                }
-                return "";
-              }
-              if (key === "and") {
-                const vals = options.orderBy[key];
-                if (vals && vals.length > 0) {
-                  return vals.join(" AND ");
-                }
-                return "";
-              }
-              if (key === "in") {
-                const vals = options.orderBy[key];
-                if (vals && vals.length > 0) {
-                  return vals
-                    .map((val) => {
-                      return `${val.key.toString()} IN (${val.list
-                        .map((item) =>
-                          typeof item === "string" ? `'${item}'` : item
-                        )
-                        .join(",")})`;
-                    })
-                    .join(" AND ");
-                }
-                return "";
-              }
-            })
-            .join(" AND ")
-        : "";
-
+    const filter = options && options.filter ? FilterText(options.filter) : "";
+    const limit_text = options && options.limit ? LimitText(options.limit) : "";
+    
     return this.db.prepare(
-      `SELECT ${get} FROM ${this.table} ${
-        where_text.length > 0 || orderBy.length > 0 ? "WHERE" : ""
-      } ${where_text.length > 0 ? `${where_text}` : ""} ${
-        orderBy.length > 0
-          ? where_text.length > 0
-            ? `AND ${orderBy}`
-            : orderBy
-          : ""
-      } ${
-        options && options.limit
-          ? `LIMIT ${options.limit.max} ${
-              options.limit.offSet ? `OFFSET ${options.limit.offSet}` : ""
-            }`
-          : ""
-      }`
+      `SELECT ${get} FROM ${this.table} ${WhereWithFilter(
+        where_text,
+        filter
+      )} ${limit_text}`
     );
   }
 
@@ -276,43 +233,44 @@ export class Database<Value extends Record<string, SqLiteType>> {
       | undefined;
   }
 
-  update({
-    where,
-    value,
-    limit,
-  }: {
-    where?: Partial<SqlReturnTypes<Value>>;
-    value?: Partial<SqlReturnTypes<Value>>;
-    limit?: LimitType;
-  }) {
+  update(
+    {
+      where,
+      value,
+    }: {
+      where?: Partial<SqlReturnTypes<Value>>;
+      value?: Partial<SqlReturnTypes<Value>>;
+    },
+    options?: Omit<OptionType<Value>, "get">
+  ) {
     const values_text = UpdateText(value || {}, this.types);
 
     if (!values_text || values_text.length === 0) {
       throw new SagError("Update", SagErrorMsg.ValueZero);
     }
-
+    const filter = options && options.filter ? FilterText(options.filter) : "";
     const where_text = WhereText(where || {}, this.types);
+    const limit_text = options && options.limit ? LimitText(options.limit) : "";
+
     this.db.exec(
-      `UPDATE ${this.table} SET ${values_text} ${
-        where_text.length > 0 ? `WHERE ${where_text}` : ""
-      } ${
-        limit
-          ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
-          : ""
-      }`
+      `UPDATE ${this.table} SET ${values_text} ${WhereWithFilter(
+        where_text,
+        filter
+      )} ${limit_text}`
     );
     return this;
   }
 
-  add({
-    value,
-    where,
-    limit,
-  }: {
-    where?: Partial<SqlReturnTypes<Value>>;
-    value?: Partial<SqlAddReturnTypes<Value>>;
-    limit?: LimitType;
-  }) {
+  add(
+    {
+      value,
+      where,
+    }: {
+      where?: Partial<SqlReturnTypes<Value>>;
+      value?: Partial<SqlAddReturnTypes<Value>>;
+    },
+    options?: Omit<OptionType<Value>, "get">
+  ) {
     const values_text = AddText(value || {}, this.types);
 
     if (!values_text || values_text.length === 0) {
@@ -320,34 +278,30 @@ export class Database<Value extends Record<string, SqLiteType>> {
     }
 
     const where_text = WhereText(where || {}, this.types);
+    const limit_text = options && options.limit ? LimitText(options.limit) : "";
+    const filter = options && options.filter ? FilterText(options.filter) : "";
     this.db.exec(
-      `UPDATE ${this.table} SET ${values_text} ${
-        where_text.length > 0 ? `WHERE ${where_text}` : ""
-      } ${
-        limit
-          ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
-          : ""
-      }`
+      `UPDATE ${this.table} SET ${values_text} ${WhereWithFilter(
+        where_text,
+        filter
+      )} ${limit_text}`
     );
     return this;
   }
 
-  delete({
-    where,
-    limit,
-  }: {
-    where?: Partial<SqlReturnTypes<Value>>;
-    limit?: LimitType;
-  }) {
+  delete(
+    where?: Partial<SqlReturnTypes<Value>>,
+    options?: Omit<OptionType<Value>, "get">
+  ) {
     const where_text = WhereText(where || {}, this.types);
+    const filter = options && options.filter ? FilterText(options.filter) : "";
+    const limit_text = options && options.limit ? LimitText(options.limit) : "";
+
     this.db.exec(
-      `DELETE FROM ${this.table} ${
-        where_text.length > 0 ? `WHERE ${where_text}` : ""
-      } ${
-        limit
-          ? `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`
-          : ""
-      }`
+      `DELETE FROM ${this.table} ${WhereWithFilter(
+        where_text,
+        filter
+      )} ${limit_text}`
     );
     return this;
   }

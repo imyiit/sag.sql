@@ -8,9 +8,6 @@ dependencies:
   better-sqlite3:
     specifier: ^9.4.3
     version: 9.4.3
-  sag.sqlite:
-    specifier: 'link:'
-    version: 'link:'
 
 devDependencies:
   '@types/better-sqlite3':
