@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Setting = void 0;
-class Setting {
+exports.Settings = void 0;
+class Settings {
     constructor({ table = "local", types, folder_name = "sqlite", replace = false, }) {
         this.table = table;
         this.types = types;
@@ -9,4 +9,4 @@ class Setting {
         this.replace = replace;
     }
 }
-exports.Setting = Setting;
+exports.Settings = Settings;

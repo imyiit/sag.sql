@@ -1,14 +1,12 @@
-import type { FilterOptions, LimitType } from "..";
+import type { NumericFilter, LimitType } from "../../types";
 
 export function CreateKey(values: object) {
   return Object.entries(values)
     .sort()
-    .reduce((pre, [key, type], curIndex, array) => {
-      const comma = curIndex !== array.length - 1 ? ", " : "";
-
-      pre += `${key} ${type}${comma}`;
-      return pre;
-    }, "");
+    .map(([key, type]) => {
+      return `${key} ${type}`;
+    })
+    .join(", ");
 }
 
 export function InsertText(values: Object, types?: Record<string, string>) {
@@ -35,46 +33,42 @@ export function InsertText(values: Object, types?: Record<string, string>) {
 export function WhereText(value: Object, types: Record<string, string>) {
   return Object.entries(value)
     .sort()
-    .reduce((pre, [key, value], curIndex, array) => {
-      if (types[key].includes("PRIMARY KEY")) return pre;
+    .map(([key, value]) => {
+      if (types[key].includes("PRIMARY KEY")) return "";
 
-      const and = curIndex !== array.length - 1 ? " AND " : "";
-      pre += `${key} ${
+      return `${key} ${
         typeof value === "string"
           ? `= '${value}'`
           : !value
           ? "is null"
           : `= ${value}`
-      }${and}`;
-      return pre;
-    }, "");
+      }`;
+    })
+    .join(" AND ");
 }
 
 export function UpdateText(value: object, types?: Record<string, string>) {
   return Object.entries(value)
     .sort()
-    .reduce((pre, [key, value], curIndex, array) => {
-      if (types && types[key].includes("PRIMARY KEY")) return pre;
+    .map(([key, value]) => {
+      if (types && types[key].includes("PRIMARY KEY")) return "";
 
-      const comma = curIndex !== array.length - 1 ? ", " : "";
-      pre += `${key} ${
+      return `${key} ${
         typeof value === "string"
           ? `= '${value}'`
           : !value
           ? "is null"
           : `= ${value}`
-      }${comma}`;
-      return pre;
-    }, "");
+      }`;
+    })
+    .join(", ");
 }
 
 export function AddText(value: object, types?: Record<string, string>) {
   return Object.entries(value as Record<string, string>)
     .sort()
-    .reduce((pre, [key, value], curIndex, array) => {
-      if (types && types[key].includes("PRIMARY KEY")) return pre;
-
-      const comma = curIndex !== array.length - 1 ? ", " : "";
+    .map(([key, value]) => {
+      if (types && types[key].includes("PRIMARY KEY")) return "";
 
       if (value.trim() === "++" || value.trim() === "--") {
         let value_text = "";
@@ -84,16 +78,14 @@ export function AddText(value: object, types?: Record<string, string>) {
           value_text = "- 1";
         }
 
-        pre += `${key} = IFNULL(${key}, 1) ${value_text} ${comma}`;
-        return pre;
+        return `${key} = IFNULL(${key}, 1) ${value_text}`;
       }
-
-      pre += `${key} = IFNULL(${key}, 1) ${value} ${comma}`;
-      return pre;
-    }, "");
+      return `${key} = IFNULL(${key}, 1) ${value}`;
+    })
+    .join(", ");
 }
 
-export function FilterText(value: Partial<FilterOptions<any>>) {
+export function FilterText(value: Partial<NumericFilter<any>>) {
   return Object.keys(value)
     .map((key) => {
       if (!value) return "";

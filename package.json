@@ -1,14 +1,15 @@
 {
   "name": "sag.sqlite",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "types",
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "ts-node-dev src/index.ts",
-    "test": "ts-node-dev tests/index.ts"
+    "testjs": "node tests/index.js",
+    "testts": "ts-node-dev tests/index.ts"
   },
   "keywords": [
     "database",

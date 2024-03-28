@@ -18,14 +18,14 @@ $ npm install sag.sqlite
 
 ```js
 // JavaScript version
-const { Database } = require("sag.sqlite");
+const Database = require("sag.sqlite");
 ```
 
 <br>
 
 ```ts
 // TypeScript version
-import { Database } from "sag.sqlite";
+import Database, { Settings, Filter } from "sag.sqlite";
 ```
 
 ## **Usage**
@@ -35,16 +35,17 @@ Default table name is "**local**".
 Default folder name is "**sqlite**".
 
 ```js
-const db = new Database({
+const setting = new Settings({
   types: {
     id: "INTEGER NOT NULL UNIQUE PRIMARY KEY",
     name: "TEXT",
     surname: "TEXT",
-    age: "INTEGER",
+    age: "INTEGER NOT NULL",
   },
-  replace: false,
-  table: "users",
 });
+
+const db = new Database(setting);
+const filter = new Filter(setting);
 ```
 
 <br>
@@ -55,7 +56,6 @@ const db = new Database({
 
 ```js
 db.set({
-  id: null,
   name: "Mbaye",
   surname: "Diagne",
   age: 32,
@@ -68,55 +68,37 @@ db.set({
 
 ```js
 // Find one item where `name = 'Mbaye'`
-const user = db.findOne({ name: "Mbaye" }); // -> user | undefined
+const user = db.findAll({ age: 32 }); // user[] | undefined;
 ```
 
 ```js
-/* 
-
-Find one item where 
-
-(`name = 'Mbaye'` and `age > 30`) & 
-(`name = 'Alex'` or `name = 'Mbaye'` or `surname = 'Diagne'`) &
-(`name in ["Mbaye", "Alex"]`)
-
-*/
-
-const user = db.findOne(
-  {},
-  {
-    orderBy: {
-      and: ["name = 'Mbaye'", "age > 30"],
-      or: ["name = 'Alex'", "name = 'Mbaye'", "surname = 'Diagne'"],
-      in: [{ key: "name", list: ["Mbaye", "Alex"] }],
-    },
-  }
-); // -> user | undefined
+const user = db.findAll({ age: 32 }, { limit: { max: 10, offSet: 2 } }); // user[] | undefined;
 ```
 
 ```js
-/* 
-
-Find all item where 
-
-(`name = 'Mbaye'` and `age > 30`) & 
-(`name = 'Alex'` or `name = 'Mbaye'` or `surname = 'Diagne'`) &
-(`name in ["Mbaye", "Alex"]`)
-
-*/
-
 const user = db.findAll(
-  {},
+  { age: 32 },
   {
-    orderBy: {
-      and: ["name = 'Mbaye'", "age > 30"],
-      or: ["name = 'Alex'", "name = 'Mbaye'", "surname = 'Diagne'"],
-      in: [{ key: "name", list: ["Mbaye", "Alex"] }],
+    filter: {
+      or: ["age > 30", "age < 50"],
+      and: ["age > 32"],
+      in: [{ key: "age", list: [1, 2, 3, 4, 30, 32] }],
     },
-    limit: 1,
-    get: "all" || 1,
   }
-); // -> user[] | undefined
+); // user[] | undefined;
+```
+
+```js
+const user = db.findAll(
+  { age: 32 },
+  {
+    filter: filter
+      .and(["age > 32"])
+      .or(["age > 30", "age < 50"])
+      .in({ age: [1, 2, 3, 4, 30, 32] })
+      .build(),
+  }
+); // user[] | undefined;
 ```
 
 <br><br>

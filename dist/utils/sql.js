@@ -4,11 +4,10 @@ exports.LimitText = exports.WhereWithFilter = exports.FilterText = exports.AddTe
 function CreateKey(values) {
     return Object.entries(values)
         .sort()
-        .reduce((pre, [key, type], curIndex, array) => {
-        const comma = curIndex !== array.length - 1 ? ", " : "";
-        pre += `${key} ${type}${comma}`;
-        return pre;
-    }, "");
+        .map(([key, type]) => {
+        return `${key} ${type}`;
+    })
+        .join(", ");
 }
 exports.CreateKey = CreateKey;
 function InsertText(values, types) {
@@ -31,42 +30,39 @@ exports.InsertText = InsertText;
 function WhereText(value, types) {
     return Object.entries(value)
         .sort()
-        .reduce((pre, [key, value], curIndex, array) => {
+        .map(([key, value]) => {
         if (types[key].includes("PRIMARY KEY"))
-            return pre;
-        const and = curIndex !== array.length - 1 ? " AND " : "";
-        pre += `${key} ${typeof value === "string"
+            return "";
+        return `${key} ${typeof value === "string"
             ? `= '${value}'`
             : !value
                 ? "is null"
-                : `= ${value}`}${and}`;
-        return pre;
-    }, "");
+                : `= ${value}`}`;
+    })
+        .join(" AND ");
 }
 exports.WhereText = WhereText;
 function UpdateText(value, types) {
     return Object.entries(value)
         .sort()
-        .reduce((pre, [key, value], curIndex, array) => {
+        .map(([key, value]) => {
         if (types && types[key].includes("PRIMARY KEY"))
-            return pre;
-        const comma = curIndex !== array.length - 1 ? ", " : "";
-        pre += `${key} ${typeof value === "string"
+            return "";
+        return `${key} ${typeof value === "string"
             ? `= '${value}'`
             : !value
                 ? "is null"
-                : `= ${value}`}${comma}`;
-        return pre;
-    }, "");
+                : `= ${value}`}`;
+    })
+        .join(", ");
 }
 exports.UpdateText = UpdateText;
 function AddText(value, types) {
     return Object.entries(value)
         .sort()
-        .reduce((pre, [key, value], curIndex, array) => {
+        .map(([key, value]) => {
         if (types && types[key].includes("PRIMARY KEY"))
-            return pre;
-        const comma = curIndex !== array.length - 1 ? ", " : "";
+            return "";
         if (value.trim() === "++" || value.trim() === "--") {
             let value_text = "";
             if (value.trim() === "++") {
@@ -75,12 +71,11 @@ function AddText(value, types) {
             else {
                 value_text = "- 1";
             }
-            pre += `${key} = IFNULL(${key}, 1) ${value_text} ${comma}`;
-            return pre;
+            return `${key} = IFNULL(${key}, 1) ${value_text}`;
         }
-        pre += `${key} = IFNULL(${key}, 1) ${value} ${comma}`;
-        return pre;
-    }, "");
+        return `${key} = IFNULL(${key}, 1) ${value}`;
+    })
+        .join(", ");
 }
 exports.AddText = AddText;
 function FilterText(value) {
