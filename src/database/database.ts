@@ -49,7 +49,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
   }
 
   set(value: SqlReturnTypes<Value>) {
-    const { keys, values } = InsertText(value, this.types);
+    const { keys, values } = InsertText(value);
     if (!keys || !values) return this;
     this.db.exec(
       `INSERT OR ${this.replace ? "REPLACE" : "IGNORE"} INTO ${
@@ -63,7 +63,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
     value: Partial<SqlReturnTypes<Value>>,
     options?: OptionType<Value>
   ) {
-    const where_text = WhereText(value, this.types);
+    const where_text = WhereText(value);
 
     const get =
       options && options.get
@@ -104,7 +104,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
 
   findOne(
     value: Partial<SqlReturnTypes<Value>>,
-    options?: Omit<OptionType<Value>, "limit" | "get">
+    options?: Omit<OptionType<Value>, "limit">
   ) {
     return this.find(value, options).get() as
       | Partial<SqlReturnTypes<Value>>
@@ -121,7 +121,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
     },
     options?: Omit<OptionType<Value>, "get">
   ) {
-    const values_text = UpdateText(value || {}, this.types);
+    const values_text = UpdateText(value || {});
 
     if (!values_text || values_text.length === 0) {
       throw new SagError("Update", SagErrorMsg.ValueZero);
@@ -132,7 +132,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
           ? options.filter
           : FilterText(options.filter)
         : "";
-    const where_text = WhereText(where || {}, this.types);
+    const where_text = WhereText(where || {});
     const limit_text = options && options.limit ? LimitText(options.limit) : "";
 
     this.db.exec(
@@ -154,7 +154,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
     },
     options?: Omit<OptionType<Value>, "get">
   ) {
-    const values_text = AddText(value || {}, this.types);
+    const values_text = AddText(value || {});
 
     if (!values_text || values_text.length === 0) {
       throw new SagError("Add", SagErrorMsg.ValueZero);
@@ -166,7 +166,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
           ? options.filter
           : FilterText(options.filter)
         : "";
-    const where_text = WhereText(where || {}, this.types);
+    const where_text = WhereText(where || {});
     const limit_text = options && options.limit ? LimitText(options.limit) : "";
 
     this.db.exec(
@@ -182,7 +182,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
     where?: Partial<SqlReturnTypes<Value>>,
     options?: Omit<OptionType<Value>, "get">
   ) {
-    const where_text = WhereText(where || {}, this.types);
+    const where_text = WhereText(where || {});
     const filter =
       options && options.filter
         ? typeof options.filter === "string"

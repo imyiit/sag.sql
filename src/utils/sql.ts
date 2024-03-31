@@ -1,6 +1,6 @@
 import type { NumericFilter, LimitType } from "../../types";
 
-export function CreateKey(values: object) {
+export function CreateKey(values: Object) {
   return Object.entries(values)
     .sort()
     .map(([key, type]) => {
@@ -9,12 +9,11 @@ export function CreateKey(values: object) {
     .join(", ");
 }
 
-export function InsertText(values: Object, types?: Record<string, string>) {
+export function InsertText(values: Object) {
   return Object.entries(values)
     .sort()
     .reduce(
       (pre, [key, type], curIndex, array) => {
-        if (types && types[key].includes("PRIMARY KEY")) return pre;
         const comma = curIndex !== array.length - 1 ? ", " : "";
         pre.keys += `${key}${comma}`;
         pre.values += `${
@@ -30,12 +29,10 @@ export function InsertText(values: Object, types?: Record<string, string>) {
     );
 }
 
-export function WhereText(value: Object, types: Record<string, string>) {
+export function WhereText(value: Object) {
   return Object.entries(value)
     .sort()
     .map(([key, value]) => {
-      if (types[key].includes("PRIMARY KEY")) return "";
-
       return `${key} ${
         typeof value === "string"
           ? `= '${value}'`
@@ -47,12 +44,10 @@ export function WhereText(value: Object, types: Record<string, string>) {
     .join(" AND ");
 }
 
-export function UpdateText(value: object, types?: Record<string, string>) {
+export function UpdateText(value: Object) {
   return Object.entries(value)
     .sort()
     .map(([key, value]) => {
-      if (types && types[key].includes("PRIMARY KEY")) return "";
-
       return `${key} ${
         typeof value === "string"
           ? `= '${value}'`
@@ -64,12 +59,10 @@ export function UpdateText(value: object, types?: Record<string, string>) {
     .join(", ");
 }
 
-export function AddText(value: object, types?: Record<string, string>) {
+export function AddText(value: Object) {
   return Object.entries(value as Record<string, string>)
     .sort()
     .map(([key, value]) => {
-      if (types && types[key].includes("PRIMARY KEY")) return "";
-
       if (value.trim() === "++" || value.trim() === "--") {
         let value_text = "";
         if (value.trim() === "++") {

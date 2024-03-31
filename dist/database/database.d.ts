@@ -9,7 +9,7 @@ export declare class Database<Value extends Record<string, SqLiteType>> {
     set(value: SqlReturnTypes<Value>): this;
     private find;
     findAll(value: Partial<SqlReturnTypes<Value>>, options?: OptionType<Value>): [] | Partial<SqlReturnTypes<Value>>[];
-    findOne(value: Partial<SqlReturnTypes<Value>>, options?: Omit<OptionType<Value>, "limit" | "get">): Partial<SqlReturnTypes<Value>> | undefined;
+    findOne(value: Partial<SqlReturnTypes<Value>>, options?: Omit<OptionType<Value>, "limit">): Partial<SqlReturnTypes<Value>> | undefined;
     update({ where, value, }: {
         where?: Partial<SqlReturnTypes<Value>>;
         value?: Partial<SqlReturnTypes<Value>>;

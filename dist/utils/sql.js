@@ -10,12 +10,10 @@ function CreateKey(values) {
         .join(", ");
 }
 exports.CreateKey = CreateKey;
-function InsertText(values, types) {
+function InsertText(values) {
     return Object.entries(values)
         .sort()
         .reduce((pre, [key, type], curIndex, array) => {
-        if (types && types[key].includes("PRIMARY KEY"))
-            return pre;
         const comma = curIndex !== array.length - 1 ? ", " : "";
         pre.keys += `${key}${comma}`;
         pre.values += `${typeof type === "string"
@@ -27,12 +25,10 @@ function InsertText(values, types) {
     }, { keys: "", values: "" });
 }
 exports.InsertText = InsertText;
-function WhereText(value, types) {
+function WhereText(value) {
     return Object.entries(value)
         .sort()
         .map(([key, value]) => {
-        if (types[key].includes("PRIMARY KEY"))
-            return "";
         return `${key} ${typeof value === "string"
             ? `= '${value}'`
             : !value
@@ -42,12 +38,10 @@ function WhereText(value, types) {
         .join(" AND ");
 }
 exports.WhereText = WhereText;
-function UpdateText(value, types) {
+function UpdateText(value) {
     return Object.entries(value)
         .sort()
         .map(([key, value]) => {
-        if (types && types[key].includes("PRIMARY KEY"))
-            return "";
         return `${key} ${typeof value === "string"
             ? `= '${value}'`
             : !value
@@ -57,12 +51,10 @@ function UpdateText(value, types) {
         .join(", ");
 }
 exports.UpdateText = UpdateText;
-function AddText(value, types) {
+function AddText(value) {
     return Object.entries(value)
         .sort()
         .map(([key, value]) => {
-        if (types && types[key].includes("PRIMARY KEY"))
-            return "";
         if (value.trim() === "++" || value.trim() === "--") {
             let value_text = "";
             if (value.trim() === "++") {

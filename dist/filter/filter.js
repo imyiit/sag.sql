@@ -2,89 +2,69 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Filter = void 0;
 class Filter {
-    constructor(settings) {
-        this.types = settings.types;
-        this.keys = Object.keys(this.types);
-        this.keywords = {};
-        this.id = 0;
+    constructor(setting) {
+        this.buildTextArray = [];
+        this.types = setting.types;
     }
-    keywordBuilder(values, keyword) {
-        values.forEach((value) => {
-            if (!Array.isArray(this.keywords[this.id])) {
-                this.keywords[this.id] = [];
-            }
-            this.keywords[this.id].push({ value, keyword });
-        });
-        this.id++;
-    }
-    or(values) {
-        this.keywordBuilder(values, "OR");
+    and_or_maker(values, type) {
+        if (values.length === 1) {
+            this.buildTextArray.push(`${values[0]}`);
+            return this;
+        }
+        this.buildTextArray.push(`${values.join(` ${type} `)}`);
         return this;
     }
     and(values) {
-        this.keywordBuilder(values, "AND");
+        if (!values || values.length === 0)
+            return this;
+        this.and_or_maker(values, "AND");
         return this;
     }
-    between(...values) {
-        if (!Array.isArray(values))
+    or(values) {
+        if (!values || values.length === 0)
             return this;
-        if (values.length === 0)
+        this.and_or_maker(values, "OR");
+        return this;
+    }
+    between(values) {
+        if (!values || !Array.isArray(values) || values.length === 0)
             return this;
-        values.forEach((value) => {
-            var _a, _b;
-            const key = Object.keys(value)[0];
-            if (!key)
-                return this;
-            if (!Array.isArray(this.keywords[this.id])) {
-                this.keywords[this.id] = [];
-            }
-            this.keywords[this.id].push({
-                value: `${key} BETWEEN ${(_a = value[key]) === null || _a === void 0 ? void 0 : _a[0]} AND ${(_b = value[key]) === null || _b === void 0 ? void 0 : _b[1]}`,
-                keyword: "AND",
+        let betweenTexts = [];
+        values.forEach((val) => {
+            Object.keys(val).forEach((k) => {
+                betweenTexts.push(`${k} BETWEEN ${val[k][0]} AND ${val[k][1]}`);
             });
         });
-        this.id++;
+        if (betweenTexts.length === 0)
+            return this;
+        this.buildTextArray.push(`${betweenTexts.join(" AND ")}`);
         return this;
     }
-    in(...values) {
-        if (!Array.isArray(values))
+    in(values) {
+        if (!values || !Array.isArray(values) || values.length === 0)
             return this;
-        if (values.length === 0)
-            return this;
-        values.forEach((value) => {
-            var _a;
-            const key = Object.keys(value)[0];
-            if (!key)
-                return this;
-            if (!Array.isArray(this.keywords[this.id])) {
-                this.keywords[this.id] = [];
-            }
-            this.keywords[this.id].push({
-                value: `${key} IN (${(_a = value[key]) === null || _a === void 0 ? void 0 : _a.map((val) => typeof val === "string"
-                    ? `'${val}'`
-                    : typeof val === "boolean"
-                        ? val === false
+        let betweenTexts = [];
+        values.forEach((val) => {
+            Object.keys(val).forEach((k) => {
+                var _a;
+                betweenTexts.push(`${k} IN (${(_a = val[k]) === null || _a === void 0 ? void 0 : _a.map((v) => typeof v === "string"
+                    ? `'${v}'`
+                    : typeof v === "boolean"
+                        ? v === false
                             ? 0
                             : 1
-                        : val)})`,
-                keyword: "AND",
+                        : v).join(",")})`);
             });
         });
-        this.id++;
+        if (betweenTexts.length === 0)
+            return this;
+        this.buildTextArray.push(`${betweenTexts.join(" AND ")}`);
         return this;
     }
-    build() {
-        this.id = 0;
-        const copyKw = Object.assign({}, this.keywords);
-        this.keywords = {};
-        return Object.keys(copyKw)
-            .map((_, i) => {
-            const values = copyKw[i];
-            return `(${values
-                .map((v, _, array) => (array.length === 1 ? v.value : `(${v.value})`))
-                .join(` ${values[0].keyword} `)})`;
-        })
-            .join(" AND ");
+    get build() {
+        const text = `${this.buildTextArray.join(") AND (")}`;
+        this.buildTextArray = [];
+        return !text.length ? "" : `(${text})`;
     }
 }
 exports.Filter = Filter;

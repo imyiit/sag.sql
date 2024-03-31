@@ -36,27 +36,20 @@ export type OptionType<Value> = {
 };
 
 export type SqlNumericReturnTypes<Obj extends object> = {
-  [K in keyof Obj as Obj[K] extends AllNumericProps ? K : never]?:
+  [K in keyof Obj as Obj[K] extends `${AllNumericProps}${infer _}`
+    ? K
+    : never]?:
     | `${ArithmeticOperators} ${(K extends string ? K : never) | number}`
     | "++"
     | "--";
 } & {
-  [K in keyof Obj as Obj[K] extends `${AllNumericProps} UNIQUE` ? K : never]?:
-    | `${ArithmeticOperators} ${(K extends string ? K : never) | number}`
-    | "++"
-    | "--";
-} & {
-  [K in keyof Obj as Obj[K] extends `${AllNumericProps} NOT NULL` ? K : never]:
-    | `${ArithmeticOperators} ${(K extends string ? K : never) | number}`
-    | "++"
-    | "--";
-} & {
-  [K in keyof Obj as Obj[K] extends `${AllNumericProps} NOT NULL UNIQUE`
+  [K in keyof Obj as Obj[K] extends `${AllNumericProps} ${
+    | "NOT NULL"
+    | "PRIMARY KEY"
+    | `NOT NULL${infer _}PRIMARY KEY`}${infer _}`
     ? K
     : never]:
-    | `${ArithmeticOperators} ${
-        | (K extends AllNumericProps ? K : never)
-        | number}`
+    | `${ArithmeticOperators} ${(K extends string ? K : never) | number}`
     | "++"
     | "--";
 };

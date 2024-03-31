@@ -19,14 +19,14 @@ class Database {
         this.db.exec(`CREATE TABLE IF NOT EXISTS ${this.table} (${keys})`);
     }
     set(value) {
-        const { keys, values } = (0, utils_1.InsertText)(value, this.types);
+        const { keys, values } = (0, utils_1.InsertText)(value);
         if (!keys || !values)
             return this;
         this.db.exec(`INSERT OR ${this.replace ? "REPLACE" : "IGNORE"} INTO ${this.table} (${keys}) VALUES (${values})`);
         return this;
     }
     find(value, options) {
-        const where_text = (0, utils_1.WhereText)(value, this.types);
+        const where_text = (0, utils_1.WhereText)(value);
         const get = options && options.get
             ? options.get === "all"
                 ? "*"
@@ -55,7 +55,7 @@ class Database {
         return this.find(value, options).get();
     }
     update({ where, value, }, options) {
-        const values_text = (0, utils_1.UpdateText)(value || {}, this.types);
+        const values_text = (0, utils_1.UpdateText)(value || {});
         if (!values_text || values_text.length === 0) {
             throw new utils_1.SagError("Update", utils_1.SagErrorMsg.ValueZero);
         }
@@ -64,13 +64,13 @@ class Database {
                 ? options.filter
                 : (0, utils_1.FilterText)(options.filter)
             : "";
-        const where_text = (0, utils_1.WhereText)(where || {}, this.types);
+        const where_text = (0, utils_1.WhereText)(where || {});
         const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
         this.db.exec(`UPDATE ${this.table} SET ${values_text} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
         return this;
     }
     add({ value, where, }, options) {
-        const values_text = (0, utils_1.AddText)(value || {}, this.types);
+        const values_text = (0, utils_1.AddText)(value || {});
         if (!values_text || values_text.length === 0) {
             throw new utils_1.SagError("Add", utils_1.SagErrorMsg.ValueZero);
         }
@@ -79,13 +79,13 @@ class Database {
                 ? options.filter
                 : (0, utils_1.FilterText)(options.filter)
             : "";
-        const where_text = (0, utils_1.WhereText)(where || {}, this.types);
+        const where_text = (0, utils_1.WhereText)(where || {});
         const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
         this.db.exec(`UPDATE ${this.table} SET ${values_text} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
         return this;
     }
     delete(where, options) {
-        const where_text = (0, utils_1.WhereText)(where || {}, this.types);
+        const where_text = (0, utils_1.WhereText)(where || {});
         const filter = options && options.filter
             ? typeof options.filter === "string"
                 ? options.filter

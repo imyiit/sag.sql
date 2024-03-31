@@ -36,7 +36,8 @@ export type AllSqlProps = TEXT | AllNumericProps | NONE;
 
 export type SqlProps<T extends string> = `${T}${" NOT NULL" | ""}${
   | " UNIQUE"
-  | ""}${" PRIMARY KEY" | ""}`;
+  | " PRIMARY KEY"
+  | ""}`;
 
 export type SqltoJs<T> = T extends SqlProps<TEXT>
   ? string
@@ -48,26 +49,24 @@ export type SqltoJs<T> = T extends SqlProps<TEXT>
 
 export type SqlReturnValueType<Val, NN> = NN extends true
   ? SqltoJs<Val>
-  : Val extends `${infer _} NOT NULL`
+  : Val extends `${infer _} ${
+      | "NOT NULL"
+      | "PRIMARY KEY"
+      | `NOT NULL${infer _}PRIMARY KEY`}${infer _}`
   ? SqltoJs<Val>
   : SqltoJs<Val> | null;
 
 export type SqlReturnTypes<Obj extends object> = {
-  [K in keyof Obj as Obj[K] extends AllSqlProps
+  [K in keyof Obj as Obj[K] extends `${AllSqlProps}${infer _}`
     ? K
     : never]?: SqlReturnValueType<Obj[K], false>;
 } & {
-  [K in keyof Obj as Obj[K] extends `${AllSqlProps} UNIQUE`
-    ? K
-    : never]?: SqlReturnValueType<Obj[K], false>;
-} & {
-  [K in keyof Obj as Obj[K] extends `${AllSqlProps} NOT NULL`
+  [K in keyof Obj as Obj[K] extends `${AllSqlProps} ${
+    | "NOT NULL"
+    | "PRIMARY KEY"
+    | `NOT NULL${infer _}PRIMARY KEY`}${infer _}`
     ? K
     : never]: SqlReturnValueType<Obj[K], false>;
-} & {
-  [K in keyof Obj as Obj[K] extends `${AllSqlProps} NOT NULL UNIQUE`
-    ? K
-    : never]: SqlReturnValueType<Obj[K], true>;
 };
 
 export type SqLiteType = SqlProps<AllSqlProps>;

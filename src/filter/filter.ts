@@ -1,97 +1,87 @@
-import type { SqLiteType, ComparisonType, SqlKeywords } from "../../types";
-import type { Database } from "../database";
-import type { Settings } from "../settings";
+import Database, { Settings } from "..";
+import { ComparisonType, SqLiteType } from "../../types";
 
 export class Filter<Value extends Record<string, SqLiteType>> {
   types: Value;
-  keys: (keyof Value)[];
-  keywords: Record<number, { value: string; keyword: SqlKeywords }[]>;
-  private id: number;
-  constructor(settings: Settings<Value> | Database<Value>) {
-    this.types = settings.types;
-    this.keys = Object.keys(this.types);
-    this.keywords = {};
-    this.id = 0;
+
+  private buildTextArray: string[] = [];
+
+  constructor(setting: Settings<Value> | Database<Value>) {
+    this.types = setting.types;
   }
 
-  private keywordBuilder(
-    values: ComparisonType<Value>[],
-    keyword: SqlKeywords
-  ) {
-    values.forEach((value) => {
-      if (!Array.isArray(this.keywords[this.id])) {
-        this.keywords[this.id] = [];
-      }
-      this.keywords[this.id].push({ value, keyword });
-    });
-    this.id++;
-  }
-
-  or(values: ComparisonType<Value>[]) {
-    this.keywordBuilder(values, "OR");
+  private and_or_maker(values: ComparisonType<Value>[], type: "OR" | "AND") {
+    if (values.length === 1) {
+      this.buildTextArray.push(`${values[0]}`);
+      return this;
+    }
+    this.buildTextArray.push(`${values.join(` ${type} `)}`);
     return this;
   }
 
-  and(values: ComparisonType<Value>[]) {
-    this.keywordBuilder(values, "AND");
+  and(values?: ComparisonType<Value>[]) {
+    if (!values || values.length === 0) return this;
+    this.and_or_maker(values, "AND");
     return this;
   }
+  or(values?: ComparisonType<Value>[]) {
+    if (!values || values.length === 0) return this;
+    this.and_or_maker(values, "OR");
+    return this;
+  }
+  between(values?: Partial<Record<keyof Value, [number, number]>>[]) {
+    if (!values || !Array.isArray(values) || values.length === 0) return this;
 
-  between(...values: Partial<Record<keyof Value, [number, number]>>[]) {
-    if (!Array.isArray(values)) return this;
-    if (values.length === 0) return this;
-    values.forEach((value) => {
-      const key = Object.keys(value)[0];
-      if (!key) return this;
-      if (!Array.isArray(this.keywords[this.id])) {
-        this.keywords[this.id] = [];
-      }
-      this.keywords[this.id].push({
-        value: `${key} BETWEEN ${value[key]?.[0]} AND ${value[key]?.[1]}`,
-        keyword: "AND",
+    let betweenTexts: string[] = [];
+
+    values.forEach((val) => {
+      Object.keys(val).forEach((k) => {
+        //@ts-ignore
+        betweenTexts.push(`${k} BETWEEN ${val[k][0]} AND ${val[k][1]}`);
       });
     });
-    this.id++;
+
+    if (betweenTexts.length === 0) return this;
+
+    this.buildTextArray.push(`${betweenTexts.join(" AND ")}`);
+
     return this;
   }
 
-  in(...values: Partial<Record<keyof Value, (string | boolean | number)[]>>[]) {
-    if (!Array.isArray(values)) return this;
-    if (values.length === 0) return this;
-    values.forEach((value) => {
-      const key = Object.keys(value)[0];
-      if (!key) return this;
-      if (!Array.isArray(this.keywords[this.id])) {
-        this.keywords[this.id] = [];
-      }
-      this.keywords[this.id].push({
-        value: `${key} IN (${value[key]?.map((val) =>
-          typeof val === "string"
-            ? `'${val}'`
-            : typeof val === "boolean"
-            ? val === false
-              ? 0
-              : 1
-            : val
-        )})`,
-        keyword: "AND",
+  in(values: Partial<Record<keyof Value, (string | boolean | number)[]>>[]) {
+    if (!values || !Array.isArray(values) || values.length === 0) return this;
+
+    let betweenTexts: string[] = [];
+
+    values.forEach((val) => {
+      Object.keys(val).forEach((k) => {
+        //@ts-ignore
+        betweenTexts.push(
+          `${k} IN (${val[k]
+            ?.map((v) =>
+              typeof v === "string"
+                ? `'${v}'`
+                : typeof v === "boolean"
+                ? v === false
+                  ? 0
+                  : 1
+                : v
+            )
+            .join(",")})`
+        );
       });
     });
-    this.id++;
+
+    if (betweenTexts.length === 0) return this;
+
+    this.buildTextArray.push(`${betweenTexts.join(" AND ")}`);
+
     return this;
   }
 
-  build() {
-    this.id = 0;
-    const copyKw = { ...this.keywords };
-    this.keywords = {};
-    return Object.keys(copyKw)
-      .map((_, i) => {
-        const values = copyKw[i];
-        return `(${values
-          .map((v, _, array) => (array.length === 1 ? v.value : `(${v.value})`))
-          .join(` ${values[0].keyword} `)})`;
-      })
-      .join(" AND ");
+  get build() {
+    const text = `${this.buildTextArray.join(") AND (")}`;
+    this.buildTextArray = [];
+    return !text.length ? "" : `(${text})`;
   }
 }
