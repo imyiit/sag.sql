@@ -97,18 +97,14 @@ export class Database<Value extends Record<string, SqLiteType>> {
   }
 
   findAll(value: Partial<SqlReturnTypes<Value>>, options?: OptionType<Value>) {
-    return this.find(value, options).all() as
-      | Partial<SqlReturnTypes<Value>>[]
-      | [];
+    return this.find(value, options).all() as SqlReturnTypes<Value>[] | [];
   }
 
   findOne(
     value: Partial<SqlReturnTypes<Value>>,
     options?: Omit<OptionType<Value>, "limit">
   ) {
-    return this.find(value, options).get() as
-      | Partial<SqlReturnTypes<Value>>
-      | undefined;
+    return this.find(value, options).get() as SqlReturnTypes<Value> | undefined;
   }
 
   update(

@@ -8,8 +8,8 @@ export declare class Database<Value extends Record<string, SqLiteType>> {
     constructor({ table, types, folder_name, replace, }: DatabaseSetting<Value>);
     set(value: SqlReturnTypes<Value>): this;
     private find;
-    findAll(value: Partial<SqlReturnTypes<Value>>, options?: OptionType<Value>): [] | Partial<SqlReturnTypes<Value>>[];
-    findOne(value: Partial<SqlReturnTypes<Value>>, options?: Omit<OptionType<Value>, "limit">): Partial<SqlReturnTypes<Value>> | undefined;
+    findAll(value: Partial<SqlReturnTypes<Value>>, options?: OptionType<Value>): [] | SqlReturnTypes<Value>[];
+    findOne(value: Partial<SqlReturnTypes<Value>>, options?: Omit<OptionType<Value>, "limit">): SqlReturnTypes<Value> | undefined;
     update({ where, value, }: {
         where?: Partial<SqlReturnTypes<Value>>;
         value?: Partial<SqlReturnTypes<Value>>;
