@@ -1,9 +1,10 @@
 import type {
   SqLiteType,
   DatabaseSetting,
-  SqlReturnTypes,
+  SqlValueTypes,
   OptionType,
   SqlNumericReturnTypes,
+  SqlReturnTypes,
 } from "../../types";
 
 import sqlite3 from "better-sqlite3";
@@ -48,7 +49,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
     this.db.exec(`CREATE TABLE IF NOT EXISTS ${this.table} (${keys})`);
   }
 
-  set(value: SqlReturnTypes<Value>) {
+  set(value: SqlValueTypes<Value>) {
     const { keys, values } = InsertText(value);
     if (!keys || !values) return this;
     this.db.exec(
@@ -60,7 +61,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
   }
 
   private find(
-    value: Partial<SqlReturnTypes<Value>>,
+    value: Partial<SqlValueTypes<Value>>,
     options?: OptionType<Value>
   ) {
     const where_text = WhereText(value);
@@ -96,12 +97,12 @@ export class Database<Value extends Record<string, SqLiteType>> {
     );
   }
 
-  findAll(value: Partial<SqlReturnTypes<Value>>, options?: OptionType<Value>) {
+  findAll(value: Partial<SqlValueTypes<Value>>, options?: OptionType<Value>) {
     return this.find(value, options).all() as SqlReturnTypes<Value>[] | [];
   }
 
   findOne(
-    value: Partial<SqlReturnTypes<Value>>,
+    value: Partial<SqlValueTypes<Value>>,
     options?: Omit<OptionType<Value>, "limit">
   ) {
     return this.find(value, options).get() as SqlReturnTypes<Value> | undefined;
@@ -112,8 +113,8 @@ export class Database<Value extends Record<string, SqLiteType>> {
       where,
       value,
     }: {
-      where?: Partial<SqlReturnTypes<Value>>;
-      value?: Partial<SqlReturnTypes<Value>>;
+      where?: Partial<SqlValueTypes<Value>>;
+      value?: Partial<SqlValueTypes<Value>>;
     },
     options?: Omit<OptionType<Value>, "get">
   ) {
@@ -145,7 +146,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
       value,
       where,
     }: {
-      where?: Partial<SqlReturnTypes<Value>>;
+      where?: Partial<SqlValueTypes<Value>>;
       value?: Partial<SqlNumericReturnTypes<Value>>;
     },
     options?: Omit<OptionType<Value>, "get">
@@ -175,7 +176,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
   }
 
   delete(
-    where?: Partial<SqlReturnTypes<Value>>,
+    where?: Partial<SqlValueTypes<Value>>,
     options?: Omit<OptionType<Value>, "get">
   ) {
     const where_text = WhereText(where || {});
@@ -203,6 +204,6 @@ export class Database<Value extends Record<string, SqLiteType>> {
 
   all() {
     return this.db.prepare(`SELECT * FROM ${this.table}`).all() as
-      | SqlReturnTypes<Value>[];
+      | SqlValueTypes<Value>[];
   }
 }

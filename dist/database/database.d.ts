@@ -1,4 +1,4 @@
-import type { SqLiteType, DatabaseSetting, SqlReturnTypes, OptionType, SqlNumericReturnTypes } from "../../types";
+import type { SqLiteType, DatabaseSetting, SqlValueTypes, OptionType, SqlNumericReturnTypes, SqlReturnTypes } from "../../types";
 export declare class Database<Value extends Record<string, SqLiteType>> {
     private table;
     types: Value;
@@ -6,19 +6,19 @@ export declare class Database<Value extends Record<string, SqLiteType>> {
     private replace;
     private db;
     constructor({ table, types, folder_name, replace, }: DatabaseSetting<Value>);
-    set(value: SqlReturnTypes<Value>): this;
+    set(value: SqlValueTypes<Value>): this;
     private find;
-    findAll(value: Partial<SqlReturnTypes<Value>>, options?: OptionType<Value>): [] | SqlReturnTypes<Value>[];
-    findOne(value: Partial<SqlReturnTypes<Value>>, options?: Omit<OptionType<Value>, "limit">): SqlReturnTypes<Value> | undefined;
+    findAll(value: Partial<SqlValueTypes<Value>>, options?: OptionType<Value>): [] | SqlReturnTypes<Value>[];
+    findOne(value: Partial<SqlValueTypes<Value>>, options?: Omit<OptionType<Value>, "limit">): SqlReturnTypes<Value> | undefined;
     update({ where, value, }: {
-        where?: Partial<SqlReturnTypes<Value>>;
-        value?: Partial<SqlReturnTypes<Value>>;
+        where?: Partial<SqlValueTypes<Value>>;
+        value?: Partial<SqlValueTypes<Value>>;
     }, options?: Omit<OptionType<Value>, "get">): this;
     add({ value, where, }: {
-        where?: Partial<SqlReturnTypes<Value>>;
+        where?: Partial<SqlValueTypes<Value>>;
         value?: Partial<SqlNumericReturnTypes<Value>>;
     }, options?: Omit<OptionType<Value>, "get">): this;
-    delete(where?: Partial<SqlReturnTypes<Value>>, options?: Omit<OptionType<Value>, "get">): this;
+    delete(where?: Partial<SqlValueTypes<Value>>, options?: Omit<OptionType<Value>, "get">): this;
     deleteAll(): this;
-    all(): SqlReturnTypes<Value>[];
+    all(): SqlValueTypes<Value>[];
 }
