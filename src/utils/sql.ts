@@ -121,6 +121,18 @@ export function WhereWithFilter(where_text: string, filter: string) {
   }`;
 }
 
+export function GetText<Value>(get: (keyof Value)[]) {
+  return get
+    .map((_val) => _val.toString().toLowerCase())
+    .filter((value, index, array) => array.indexOf(value) === index)
+    .sort()
+    .reduce((pre, cur, curIndex, array) => {
+      const comma = curIndex !== array.length - 1 ? ", " : "";
+      pre += `${cur}${comma}`;
+      return pre;
+    }, "");
+}
+
 export function LimitText(limit: LimitType) {
   return `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`;
 }

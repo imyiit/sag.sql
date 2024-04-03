@@ -32,7 +32,7 @@ export type NumericFilter<Value> = {
 export type OptionType<Value> = {
   get?: "all" | (keyof Value)[];
   limit?: LimitType;
-  filter?: Partial<NumericFilter<Value>> | string;
+  filter?: Partial<NumericFilter<Value>> | ComparisonType<Value>;
 };
 
 export type SqlNumericReturnTypes<Obj extends object> = {

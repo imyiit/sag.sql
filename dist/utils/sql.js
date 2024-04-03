@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LimitText = exports.WhereWithFilter = exports.FilterText = exports.AddText = exports.UpdateText = exports.WhereText = exports.InsertText = exports.CreateKey = void 0;
+exports.LimitText = exports.GetText = exports.WhereWithFilter = exports.FilterText = exports.AddText = exports.UpdateText = exports.WhereText = exports.InsertText = exports.CreateKey = void 0;
 function CreateKey(values) {
     return Object.entries(values)
         .sort()
@@ -110,6 +110,18 @@ function WhereWithFilter(where_text, filter) {
     return `${where_text.length > 0 || filter.length > 0 ? "WHERE" : ""} ${where_text.length > 0 ? `${where_text}` : ""} ${filter.length > 0 ? (where_text.length > 0 ? `AND ${filter}` : filter) : ""}`;
 }
 exports.WhereWithFilter = WhereWithFilter;
+function GetText(get) {
+    return get
+        .map((_val) => _val.toString().toLowerCase())
+        .filter((value, index, array) => array.indexOf(value) === index)
+        .sort()
+        .reduce((pre, cur, curIndex, array) => {
+        const comma = curIndex !== array.length - 1 ? ", " : "";
+        pre += `${cur}${comma}`;
+        return pre;
+    }, "");
+}
+exports.GetText = GetText;
 function LimitText(limit) {
     return `LIMIT ${limit.max} ${limit.offSet ? `OFFSET ${limit.offSet}` : ""}`;
 }

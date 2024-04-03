@@ -1,6 +1,8 @@
 export enum SagErrorMsg {
   TypesZero = "Database argument of 'types' need min one argument.",
   ValueZero = "Value need min one argument.",
+  NotSameFolder = "Database folder name is not same!",
+  NotSameTableName = "Database table name cant same!",
 }
 
 type ErrorTypes = "Update" | "Set" | "Delete" | "Find" | "Database" | "Add";

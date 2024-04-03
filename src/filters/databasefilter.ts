@@ -1,7 +1,7 @@
 import Database, { Settings } from "..";
 import { ComparisonType, SqLiteType } from "../../types";
 
-export class Filter<Value extends Record<string, SqLiteType>> {
+export class DatabaseFilter<Value extends Record<string, SqLiteType>> {
   types: Value;
 
   private buildTextArray: string[] = [];
@@ -47,7 +47,6 @@ export class Filter<Value extends Record<string, SqLiteType>> {
 
     return this;
   }
-
   in(values: Partial<Record<keyof Value, (string | boolean | number)[]>>[]) {
     if (!values || !Array.isArray(values) || values.length === 0) return this;
 
@@ -79,9 +78,11 @@ export class Filter<Value extends Record<string, SqLiteType>> {
     return this;
   }
 
-  get build() {
-    const text = `${this.buildTextArray.join(") AND (")}`;
+  build() {
+    const text = `${this.buildTextArray
+      .map((txt) => `(${txt})`)
+      .join(" AND ")}`;
     this.buildTextArray = [];
-    return !text.length ? "" : `(${text})`;
+    return (!text.length ? "" : `${text}`) as ComparisonType<Value>;
   }
 }

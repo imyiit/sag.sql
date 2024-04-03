@@ -9,4 +9,5 @@ export declare function UpdateText(value: Object): string;
 export declare function AddText(value: Object): string;
 export declare function FilterText(value: Partial<NumericFilter<any>>): string;
 export declare function WhereWithFilter(where_text: string, filter: string): string;
+export declare function GetText<Value>(get: (keyof Value)[]): string;
 export declare function LimitText(limit: LimitType): string;

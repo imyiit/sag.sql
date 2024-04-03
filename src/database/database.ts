@@ -20,13 +20,14 @@ import {
   FilterText,
   WhereWithFilter,
   LimitText,
+  GetText,
 } from "../utils";
 
 export class Database<Value extends Record<string, SqLiteType>> {
-  private table: string;
+  table: string;
   types: Value;
-  private folder_name: string;
-  private replace: boolean;
+  folder_name: string;
+  replace: boolean;
   private db: sqlite3.Database;
 
   constructor({
@@ -70,15 +71,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
       options && options.get
         ? options.get === "all"
           ? "*"
-          : options.get
-              .map((_val) => _val.toString().toLowerCase())
-              .filter((value, index, array) => array.indexOf(value) === index)
-              .sort()
-              .reduce((pre, cur, curIndex, array) => {
-                const comma = curIndex !== array.length - 1 ? ", " : "";
-                pre += `${cur}${comma}`;
-                return pre;
-              }, "")
+          : GetText(options.get)
         : "*";
 
     const filter =

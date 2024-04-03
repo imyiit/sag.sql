@@ -1,9 +1,9 @@
 import type { SqLiteType, DatabaseSetting, SqlValueTypes, OptionType, SqlNumericReturnTypes, SqlReturnTypes } from "../../types";
 export declare class Database<Value extends Record<string, SqLiteType>> {
-    private table;
+    table: string;
     types: Value;
-    private folder_name;
-    private replace;
+    folder_name: string;
+    replace: boolean;
     private db;
     constructor({ table, types, folder_name, replace, }: DatabaseSetting<Value>);
     set(value: SqlValueTypes<Value>): this;

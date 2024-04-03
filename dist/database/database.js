@@ -30,15 +30,7 @@ class Database {
         const get = options && options.get
             ? options.get === "all"
                 ? "*"
-                : options.get
-                    .map((_val) => _val.toString().toLowerCase())
-                    .filter((value, index, array) => array.indexOf(value) === index)
-                    .sort()
-                    .reduce((pre, cur, curIndex, array) => {
-                    const comma = curIndex !== array.length - 1 ? ", " : "";
-                    pre += `${cur}${comma}`;
-                    return pre;
-                }, "")
+                : (0, utils_1.GetText)(options.get)
             : "*";
         const filter = options && options.filter
             ? typeof options.filter === "string"

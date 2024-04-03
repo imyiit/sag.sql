@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Filter = void 0;
-class Filter {
+exports.DatabaseFilter = void 0;
+class DatabaseFilter {
     constructor(setting) {
         this.buildTextArray = [];
         this.types = setting.types;
@@ -61,10 +61,12 @@ class Filter {
         this.buildTextArray.push(`${betweenTexts.join(" AND ")}`);
         return this;
     }
-    get build() {
-        const text = `${this.buildTextArray.join(") AND (")}`;
+    build() {
+        const text = `${this.buildTextArray
+            .map((txt) => `(${txt})`)
+            .join(" AND ")}`;
         this.buildTextArray = [];
-        return !text.length ? "" : `(${text})`;
+        return (!text.length ? "" : `${text}`);
     }
 }
-exports.Filter = Filter;
+exports.DatabaseFilter = DatabaseFilter;

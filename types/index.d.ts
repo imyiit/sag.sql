@@ -90,3 +90,4 @@ export type SqLiteType = SqlProps<AllSqlProps>;
 
 export * from "./database";
 export * from "./option";
+export * from "./joins"

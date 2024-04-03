@@ -2,4 +2,5 @@ import { Database } from "./database";
 export default Database;
 
 export { Settings } from "./settings";
-export { Filter } from "./filter";
+export { DatabaseFilter, JoinsFilter } from "./filters";
+export { Joins } from "./joins";
