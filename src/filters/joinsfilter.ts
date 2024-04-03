@@ -76,9 +76,6 @@ export class JoinsFilter<
     const text = `${this.buildTextArray
       .map((txt) => `(${txt})`)
       .join(" AND ")}`;
-
-    console.log({ text });
-
     this.buildTextArray = [];
     return (!text.length ? "" : `${text}`) as ComparisonJoinType<
       Value1,
