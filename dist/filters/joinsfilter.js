@@ -14,14 +14,14 @@ class JoinsFilter {
         this.buildTextArray.push(`${values.join(` ${type} `)}`);
         return this;
     }
-    and(values) {
+    and(...values) {
         if (!values || values.length === 0)
             return this;
         const converted = values.map(([val1, val2, val3]) => this.text(val1, val2, val3));
         this.and_or_maker(converted, "AND");
         return this;
     }
-    or(values) {
+    or(...values) {
         if (!values || values.length === 0)
             return this;
         const converted = values.map(([val1, val2, val3]) => this.text(val1, val2, val3));
@@ -35,7 +35,6 @@ class JoinsFilter {
         const text = `${this.buildTextArray
             .map((txt) => `(${txt})`)
             .join(" AND ")}`;
-        console.log({ text });
         this.buildTextArray = [];
         return (!text.length ? "" : `${text}`);
     }

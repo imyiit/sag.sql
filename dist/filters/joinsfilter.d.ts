@@ -5,12 +5,12 @@ export declare class JoinsFilter<Value1 extends Record<string, SqLiteType>, Valu
     private buildTextArray;
     constructor(joins: Joins<Value1, Value2>);
     private and_or_maker;
-    and(values: [
+    and(...values: [
         value1: keyof Value1,
         expression: ComparisonOperators,
         value2: keyof Value2
     ][]): this;
-    or(values: [
+    or(...values: [
         value1: keyof Value1,
         expression: ComparisonOperators,
         value2: keyof Value2

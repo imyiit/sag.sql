@@ -29,7 +29,7 @@ export class JoinsFilter<
   }
 
   and(
-    values: [
+    ...values: [
       value1: keyof Value1,
       expression: ComparisonOperators,
       value2: keyof Value2
@@ -46,7 +46,7 @@ export class JoinsFilter<
   }
 
   or(
-    values: [
+    ...values: [
       value1: keyof Value1,
       expression: ComparisonOperators,
       value2: keyof Value2

@@ -19,17 +19,17 @@ export class DatabaseFilter<Value extends Record<string, SqLiteType>> {
     return this;
   }
 
-  and(values?: ComparisonType<Value>[]) {
+  and(...values: ComparisonType<Value>[]) {
     if (!values || values.length === 0) return this;
     this.and_or_maker(values, "AND");
     return this;
   }
-  or(values?: ComparisonType<Value>[]) {
+  or(...values: ComparisonType<Value>[]) {
     if (!values || values.length === 0) return this;
     this.and_or_maker(values, "OR");
     return this;
   }
-  between(values?: Partial<Record<keyof Value, [number, number]>>[]) {
+  between(...values: Partial<Record<keyof Value, [number, number]>>[]) {
     if (!values || !Array.isArray(values) || values.length === 0) return this;
 
     let betweenTexts: string[] = [];
@@ -47,7 +47,7 @@ export class DatabaseFilter<Value extends Record<string, SqLiteType>> {
 
     return this;
   }
-  in(values: Partial<Record<keyof Value, (string | boolean | number)[]>>[]) {
+  in(...values: Partial<Record<keyof Value, (string | boolean | number)[]>>[]) {
     if (!values || !Array.isArray(values) || values.length === 0) return this;
 
     let betweenTexts: string[] = [];

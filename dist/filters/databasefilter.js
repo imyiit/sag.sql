@@ -14,19 +14,19 @@ class DatabaseFilter {
         this.buildTextArray.push(`${values.join(` ${type} `)}`);
         return this;
     }
-    and(values) {
+    and(...values) {
         if (!values || values.length === 0)
             return this;
         this.and_or_maker(values, "AND");
         return this;
     }
-    or(values) {
+    or(...values) {
         if (!values || values.length === 0)
             return this;
         this.and_or_maker(values, "OR");
         return this;
     }
-    between(values) {
+    between(...values) {
         if (!values || !Array.isArray(values) || values.length === 0)
             return this;
         let betweenTexts = [];
@@ -40,7 +40,7 @@ class DatabaseFilter {
         this.buildTextArray.push(`${betweenTexts.join(" AND ")}`);
         return this;
     }
-    in(values) {
+    in(...values) {
         if (!values || !Array.isArray(values) || values.length === 0)
             return this;
         let betweenTexts = [];

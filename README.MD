@@ -87,9 +87,9 @@ userDB.findAll({}, { filter: { and: ["age > 30"] } }); // -> { name: String, sur
 
 ```js
 //With Filter builder
-userDB.findAll({}, { filter: filter.and(["name = 'Alex'"]).build() }); // -> { name: String, surname: String, age: number, id: number }[] | undefined
-userDB.findAll({}, { filter: filter.or(["name = 'Alex'"]).build() }); // -> { name: String, surname: String, age: number, id: number }[] | undefined
-userDB.findAll({}, { filter: filter.in([{ name: ["Alex", "Bob"] }]).build() }); // -> { name: String, surname: String, age: number, id: number }[] | undefined
+userDB.findAll({}, { filter: filter.and("name = 'Alex'").build() }); // -> { name: String, surname: String, age: number, id: number }[] | undefined
+userDB.findAll({}, { filter: filter.or("name = 'Alex'").build() }); // -> { name: String, surname: String, age: number, id: number }[] | undefined
+userDB.findAll({}, { filter: filter.in({ name: ["Alex", "Bob"] }).build() }); // -> { name: String, surname: String, age: number, id: number }[] | undefined
 ```
 
 <br>
@@ -141,7 +141,7 @@ userDB.add({ where: { name: "Alex" }, value: { age: "- age" } }); // -> db
 //Add all elements if name = 'Alex'
 userDB.add(
   { value: { age: "+ 1" } },
-  { filter: filter.and(["name = 'Alex'"]).build() }
+  { filter: filter.and("name = 'Alex'").build() }
 ); // -> db
 ```
 
@@ -187,7 +187,7 @@ const joins_filter = new JoinsFilter(joins);
 ```js
 joins.find({
   get: ["name", "surname"],
-  filter: joins_filter.and([["id", "=", "ownerId"]]).build(),
+  filter: joins_filter.and(["id", "=", "ownerId"]).build(),
 }); // -> { name: String, surname: String }[] | undefined
 ```
 
@@ -199,7 +199,7 @@ joins.find({
 //Find users table items if users.id > cars.ownerId
 joins.find({
   get: ["name", "surname"],
-  filter: joins_filter.or([["id", ">", "ownerId"]]).build(),
+  filter: joins_filter.or(["id", ">", "ownerId"]).build(),
 }); // -> { name: String, surname: String }[] | undefined
 ```
 
