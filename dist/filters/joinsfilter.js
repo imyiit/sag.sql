@@ -17,14 +17,18 @@ class JoinsFilter {
     and(...values) {
         if (!values || values.length === 0)
             return this;
-        const converted = values.map(([val1, val2, val3]) => this.text(val1, val2, val3));
+        const converted = values.map((vals) => vals.length < 3
+            ? ""
+            : this.text(vals[0], vals[1], vals[2]));
         this.and_or_maker(converted, "AND");
         return this;
     }
     or(...values) {
         if (!values || values.length === 0)
             return this;
-        const converted = values.map(([val1, val2, val3]) => this.text(val1, val2, val3));
+        const converted = values.map((vals) => vals.length < 3
+            ? ""
+            : this.text(vals[0], vals[1], vals[2]));
         this.and_or_maker(converted, "OR");
         return this;
     }
