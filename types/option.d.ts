@@ -1,4 +1,4 @@
-import { AllNumericProps } from ".";
+import { AllNumericProps, SqltoJs } from ".";
 export type ArithmeticOperators = "+" | "-" | "/" | "*";
 export type ComparisonOperators = "=" | ">" | "<" | ">=" | "<=" | "<>";
 export type SqlKeywords = "AND" | "OR";
@@ -33,6 +33,10 @@ export type OptionType<Value> = {
   get?: "all" | (keyof Value)[];
   limit?: LimitType;
   filter?: Partial<NumericFilter<Value>> | ComparisonType<Value>;
+  orderBy?: `${keyof Value extends string ? keyof Value : never}${
+    | ""
+    | " ASC"
+    | " DESC"}`[];
 };
 
 export type SqlNumericReturnTypes<Obj extends object> = {

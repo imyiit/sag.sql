@@ -37,8 +37,11 @@ class Database {
                 ? options.filter
                 : (0, utils_1.FilterText)(options.filter)
             : "";
+        const orderBy = options && options.orderBy
+            ? `ORDER BY ${options.orderBy.join(", ")}`
+            : "";
         const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
-        return this.db.prepare(`SELECT ${get} FROM ${this.table} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
+        return this.db.prepare(`SELECT ${get} FROM ${this.table} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${orderBy} ${limit_text}`);
     }
     findAll(value, options) {
         return this.find(value, options).all();
@@ -57,8 +60,11 @@ class Database {
                 : (0, utils_1.FilterText)(options.filter)
             : "";
         const where_text = (0, utils_1.WhereText)(where || {});
+        const orderBy = options && options.orderBy
+            ? `ORDER BY ${options.orderBy.join(", ")}`
+            : "";
         const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
-        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
+        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${orderBy} ${limit_text}`);
         return this;
     }
     add({ value, where, }, options) {
@@ -72,8 +78,11 @@ class Database {
                 : (0, utils_1.FilterText)(options.filter)
             : "";
         const where_text = (0, utils_1.WhereText)(where || {});
+        const orderBy = options && options.orderBy
+            ? `ORDER BY ${options.orderBy.join(", ")}`
+            : "";
         const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
-        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
+        this.db.exec(`UPDATE ${this.table} SET ${values_text} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${orderBy} ${limit_text}`);
         return this;
     }
     delete(where, options) {
@@ -83,8 +92,11 @@ class Database {
                 ? options.filter
                 : (0, utils_1.FilterText)(options.filter)
             : "";
+        const orderBy = options && options.orderBy
+            ? `ORDER BY ${options.orderBy.join(", ")}`
+            : "";
         const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
-        this.db.exec(`DELETE FROM ${this.table} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${limit_text}`);
+        this.db.exec(`DELETE FROM ${this.table} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${orderBy} ${limit_text}`);
         return this;
     }
     deleteAll() {

@@ -80,13 +80,19 @@ export class Database<Value extends Record<string, SqLiteType>> {
           ? options.filter
           : FilterText(options.filter)
         : "";
+
+    const orderBy =
+      options && options.orderBy
+        ? `ORDER BY ${options.orderBy.join(", ")}`
+        : "";
+
     const limit_text = options && options.limit ? LimitText(options.limit) : "";
 
     return this.db.prepare(
       `SELECT ${get} FROM ${this.table} ${WhereWithFilter(
         where_text,
         filter
-      )} ${limit_text}`
+      )} ${orderBy} ${limit_text}`
     );
   }
 
@@ -123,13 +129,19 @@ export class Database<Value extends Record<string, SqLiteType>> {
           : FilterText(options.filter)
         : "";
     const where_text = WhereText(where || {});
+
+    const orderBy =
+      options && options.orderBy
+        ? `ORDER BY ${options.orderBy.join(", ")}`
+        : "";
+
     const limit_text = options && options.limit ? LimitText(options.limit) : "";
 
     this.db.exec(
       `UPDATE ${this.table} SET ${values_text} ${WhereWithFilter(
         where_text,
         filter
-      )} ${limit_text}`
+      )} ${orderBy} ${limit_text}`
     );
     return this;
   }
@@ -157,13 +169,17 @@ export class Database<Value extends Record<string, SqLiteType>> {
           : FilterText(options.filter)
         : "";
     const where_text = WhereText(where || {});
+    const orderBy =
+      options && options.orderBy
+        ? `ORDER BY ${options.orderBy.join(", ")}`
+        : "";
     const limit_text = options && options.limit ? LimitText(options.limit) : "";
 
     this.db.exec(
       `UPDATE ${this.table} SET ${values_text} ${WhereWithFilter(
         where_text,
         filter
-      )} ${limit_text}`
+      )} ${orderBy} ${limit_text}`
     );
     return this;
   }
@@ -179,13 +195,19 @@ export class Database<Value extends Record<string, SqLiteType>> {
           ? options.filter
           : FilterText(options.filter)
         : "";
+
+    const orderBy =
+      options && options.orderBy
+        ? `ORDER BY ${options.orderBy.join(", ")}`
+        : "";
+
     const limit_text = options && options.limit ? LimitText(options.limit) : "";
 
     this.db.exec(
       `DELETE FROM ${this.table} ${WhereWithFilter(
         where_text,
         filter
-      )} ${limit_text}`
+      )} ${orderBy} ${limit_text}`
     );
     return this;
   }
