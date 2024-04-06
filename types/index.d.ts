@@ -41,11 +41,9 @@ export type SqltoJs<T> = T extends SqlProps<TEXT>
   : T extends SqlProps<NONE>
   ? string | number | boolean
   : T extends SqlProps<NUMERIC>
-  ? boolean | number | Date
+  ? boolean | number
   : T extends DATE
-  ? T extends `DATE${infer _}`
-    ? string
-    : number
+  ? string | number
   : number;
 
 export type SqlReturnValueType<Val, NN> = NN extends true
