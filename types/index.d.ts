@@ -17,12 +17,9 @@ export type TEXT =
   | "TEXT"
   | "CLOB";
 
-export type NUMERIC =
-  | "NUMERIC"
-  | `DECIMAL(10, 5)`
-  | "BOOLEAN"
-  | "DATE"
-  | "DATETIME";
+export type NUMERIC = "NUMERIC" | `DECIMAL(10, 5)` | "BOOLEAN";
+
+export type DATE = "DATE" | "TIMESTAMP";
 
 export type REAL = "REAL" | "DOUBLE" | "DOUBLE PRECISION" | "FLOAT";
 
@@ -32,7 +29,7 @@ export type ArithmeticOperators = "+" | "-" | "/" | "*";
 export type ComparisonOperators = "=" | ">" | "<" | ">=" | "<=" | "<>";
 
 export type AllNumericProps = INTAGER | NUMERIC | REAL;
-export type AllSqlProps = TEXT | AllNumericProps | NONE;
+export type AllSqlProps = TEXT | AllNumericProps | NONE | DATE;
 
 export type SqlProps<T extends string> = `${T}${" NOT NULL" | ""}${
   | " UNIQUE"
@@ -45,6 +42,10 @@ export type SqltoJs<T> = T extends SqlProps<TEXT>
   ? string | number | boolean
   : T extends SqlProps<NUMERIC>
   ? boolean | number | Date
+  : T extends DATE
+  ? T extends "DATE"
+    ? string
+    : number
   : number;
 
 export type SqlReturnValueType<Val, NN> = NN extends true
@@ -90,4 +91,4 @@ export type SqLiteType = SqlProps<AllSqlProps>;
 
 export * from "./database";
 export * from "./option";
-export * from "./joins"
+export * from "./joins";
