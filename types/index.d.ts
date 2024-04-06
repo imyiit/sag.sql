@@ -42,7 +42,7 @@ export type SqltoJs<T> = T extends SqlProps<TEXT>
   ? string | number | boolean
   : T extends SqlProps<NUMERIC>
   ? boolean | number
-  : T extends DATE
+  : T extends `${DATE}${infer _}`
   ? string | number
   : number;
 
