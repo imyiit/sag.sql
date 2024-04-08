@@ -69,7 +69,7 @@ export class Database<Value extends Record<string, SqLiteType>> {
 
     const get =
       options && options.get
-        ? options.get === "all"
+        ? options.get === "all" || options.get.length === 0
           ? "*"
           : GetText(options.get)
         : "*";
@@ -87,6 +87,13 @@ export class Database<Value extends Record<string, SqLiteType>> {
         : "";
 
     const limit_text = options && options.limit ? LimitText(options.limit) : "";
+
+    console.log(
+      `SELECT ${get} FROM ${this.table} ${WhereWithFilter(
+        where_text,
+        filter
+      )} ${orderBy} ${limit_text}`
+    );
 
     return this.db.prepare(
       `SELECT ${get} FROM ${this.table} ${WhereWithFilter(

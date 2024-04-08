@@ -28,7 +28,7 @@ class Database {
     find(value, options) {
         const where_text = (0, utils_1.WhereText)(value);
         const get = options && options.get
-            ? options.get === "all"
+            ? options.get === "all" || options.get.length === 0
                 ? "*"
                 : (0, utils_1.GetText)(options.get)
             : "*";
@@ -41,6 +41,7 @@ class Database {
             ? `ORDER BY ${options.orderBy.join(", ")}`
             : "";
         const limit_text = options && options.limit ? (0, utils_1.LimitText)(options.limit) : "";
+        console.log(`SELECT ${get} FROM ${this.table} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${orderBy} ${limit_text}`);
         return this.db.prepare(`SELECT ${get} FROM ${this.table} ${(0, utils_1.WhereWithFilter)(where_text, filter)} ${orderBy} ${limit_text}`);
     }
     findAll(value, options) {
