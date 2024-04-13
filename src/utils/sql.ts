@@ -123,7 +123,7 @@ export function WhereWithFilter(where_text: string, filter: string) {
 
 export function GetText<Value>(get: (keyof Value)[]) {
   return get
-    .map((_val) => _val.toString().toLowerCase())
+    .map((val) => val.toString())
     .filter((value, index, array) => array.indexOf(value) === index)
     .sort()
     .reduce((pre, cur, curIndex, array) => {

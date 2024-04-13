@@ -112,7 +112,7 @@ function WhereWithFilter(where_text, filter) {
 exports.WhereWithFilter = WhereWithFilter;
 function GetText(get) {
     return get
-        .map((_val) => _val.toString().toLowerCase())
+        .map((val) => val.toString())
         .filter((value, index, array) => array.indexOf(value) === index)
         .sort()
         .reduce((pre, cur, curIndex, array) => {
