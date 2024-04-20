@@ -187,7 +187,7 @@ const joins_filter = new JoinsFilter(joins);
 ```js
 joins.find({
   get: ["name", "surname"],
-  filter: joins_filter.and(["id", "=", "ownerId"]).build(),
+  filter: joins_filter.and("id = ownerId", "age > id").build(),
 }); // -> { name: String, surname: String }[] | undefined
 ```
 
@@ -199,7 +199,7 @@ joins.find({
 //Find users table items if users.id > cars.ownerId
 joins.find({
   get: ["name", "surname"],
-  filter: joins_filter.or(["id", ">", "ownerId"]).build(),
+  filter: joins_filter.or("id = ownerId", "age < id").build(),
 }); // -> { name: String, surname: String }[] | undefined
 ```
 

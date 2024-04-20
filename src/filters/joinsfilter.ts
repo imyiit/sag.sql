@@ -29,34 +29,40 @@ export class JoinsFilter<
   }
 
   and(
-    ...values: [
-      value1: keyof Value1,
-      expression: ComparisonOperators,
-      value2: keyof Value2
-    ][]
+    ...values: `${keyof Value1 extends string
+      ? keyof Value1
+      : never} ${ComparisonOperators} ${keyof Value2 extends string
+      ? keyof Value2
+      : never}`[]
   ) {
     if (!values || values.length === 0) return this;
-    const converted = values.map((vals) =>
-      vals.length < 3
+    const converted = values.map((val) =>
+      !val.length
         ? ("" as ComparisonJoinType<Value1, Value2>)
-        : this.text(vals[0], vals[1], vals[2])
+        : (() => {
+            const vals = val.split(" ");
+            return this.text(vals[0], vals[1] as ComparisonOperators, vals[2]);
+          })()
     );
     this.and_or_maker(converted, "AND");
     return this;
   }
 
   or(
-    ...values: [
-      value1: keyof Value1,
-      expression: ComparisonOperators,
-      value2: keyof Value2
-    ][]
+    ...values: `${keyof Value1 extends string
+      ? keyof Value1
+      : never} ${ComparisonOperators} ${keyof Value2 extends string
+      ? keyof Value2
+      : never}`[]
   ) {
     if (!values || values.length === 0) return this;
-    const converted = values.map((vals) =>
-      vals.length < 3
+    const converted = values.map((val) =>
+      !val.length
         ? ("" as ComparisonJoinType<Value1, Value2>)
-        : this.text(vals[0], vals[1], vals[2])
+        : (() => {
+            const vals = val.split(" ");
+            return this.text(vals[0], vals[1] as ComparisonOperators, vals[2]);
+          })()
     );
     this.and_or_maker(converted, "OR");
     return this;
