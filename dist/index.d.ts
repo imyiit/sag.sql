@@ -1,5 +1,5 @@
 import { Database } from "./database";
 export default Database;
+export { DatabaseFilter } from "./database";
 export { Settings } from "./settings";
-export { DatabaseFilter, JoinsFilter } from "./filters";
-export { Joins } from "./joins";
+export { Joins, JoinsFilter } from "./joins";

@@ -15,3 +15,4 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./joins"), exports);
+__exportStar(require("./filter"), exports);

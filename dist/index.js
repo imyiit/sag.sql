@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Joins = exports.JoinsFilter = exports.DatabaseFilter = exports.Settings = void 0;
+exports.JoinsFilter = exports.Joins = exports.Settings = exports.DatabaseFilter = void 0;
 const database_1 = require("./database");
 exports.default = database_1.Database;
+var database_2 = require("./database");
+Object.defineProperty(exports, "DatabaseFilter", { enumerable: true, get: function () { return database_2.DatabaseFilter; } });
 var settings_1 = require("./settings");
 Object.defineProperty(exports, "Settings", { enumerable: true, get: function () { return settings_1.Settings; } });
-var filters_1 = require("./filters");
-Object.defineProperty(exports, "DatabaseFilter", { enumerable: true, get: function () { return filters_1.DatabaseFilter; } });
-Object.defineProperty(exports, "JoinsFilter", { enumerable: true, get: function () { return filters_1.JoinsFilter; } });
 var joins_1 = require("./joins");
 Object.defineProperty(exports, "Joins", { enumerable: true, get: function () { return joins_1.Joins; } });
+Object.defineProperty(exports, "JoinsFilter", { enumerable: true, get: function () { return joins_1.JoinsFilter; } });
