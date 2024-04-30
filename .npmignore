@@ -1,7 +1,7 @@
 ### Node ###
 
-.github
 *.sqlite3
+.github
 
 # Logs
 logs
