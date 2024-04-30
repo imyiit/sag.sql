@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - run: npm ci || npm i
+      - run: npm ci || npm i
       - run: npm run build
       # - run: npm test
       - uses: actions/cache@v4
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ZIP_FILE: ${{ github.event.repository.name }}.zip
-      ZIP_LIST: LICENSE Release.txt dist package.json tsconfig.json
+      ZIP_LIST: LICENSE Release.txt dist/* package.json tsconfig.json
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
