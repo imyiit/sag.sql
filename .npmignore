@@ -1,7 +1,10 @@
 ### Node ###
 
 *.sqlite3
+*.zip
 .github
+src
+types
 
 # Logs
 logs
