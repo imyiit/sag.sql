@@ -2,13 +2,14 @@ name: Publish
 
 on:
   push:
-    branches: master
+    branches: main
     paths: package.json
 
 jobs:
   check-version:
     runs-on: ubuntu-latest
     outputs:
+      version: ${{ steps.diff.outputs.version }}
       version_changed: ${{ steps.diff.outputs.version_changed }}
     steps:
       - uses: actions/checkout@v4
@@ -16,14 +17,17 @@ jobs:
          sparse-checkout: 'package.json'
          fetch-depth: 2
       - id: diff
-        run: echo "version_changed=$(git diff HEAD~1 HEAD package.json | grep --line-buffered -E "\+.+version" | grep -q "" && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        run: echo "version_changed=$(git diff HEAD~1 HEAD package.json | grep --line-buffered -E "\+.+version" | grep -q "" && (echo true && echo "version=v$(npm pkg get version | sed 's/"//g')" >> $GITHUB_OUTPUT) || echo false)" >> "$GITHUB_OUTPUT"
 
   build:
     needs: check-version
+    if: needs.check-version.outputs.version_changed == 'true'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
       - run: npm ci || npm i
@@ -34,11 +38,21 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}
+      - run: |
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+          git config user.name ${{ github.actor }}
+          git tag -a ${{ needs.check-version.outputs.version }} -m "${{ github.event.head_commit.message }}"
+          git push --tags
 
   publish:
     needs: [check-version, build]
     if: needs.check-version.outputs.version_changed == 'true'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
+    env:
+      ZIP_FILE: ${{ github.event.repository.name }}.zip
+      ZIP_LIST: LICENSE Release.txt dist package.json tsconfig.json
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,7 +64,16 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}
-      - run: echo ${{ github.sha }} > Release.txt
-      - run: npm publish
+      - run: |
+          echo ${{ github.sha }} > Release.txt
+          zip ${{ env.ZIP_FILE }} ${{ env.ZIP_LIST }}
+      - name: GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_FILE }}
+          tag_name: ${{ needs.check-version.outputs.version }}
+          generate_release_notes: true
+      - name: NPM
+        run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
