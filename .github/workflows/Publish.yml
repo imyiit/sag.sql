@@ -50,6 +50,7 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}
+      - run: echo ${{ github.sha }} > Release.txt
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
