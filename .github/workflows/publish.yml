@@ -29,6 +29,11 @@ jobs:
       - run: npm ci || npm i
       - run: npm run build
       # - run: npm test
+      - uses: actions/cache@v4
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
 
   publish:
     needs: [check-version, build]
@@ -36,10 +41,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
+      - uses: actions/cache@v4
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
