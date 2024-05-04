@@ -4,6 +4,7 @@
 *.zip
 .github
 src
+tsconfig.json
 types
 
 # Logs
