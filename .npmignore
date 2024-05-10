@@ -1,7 +1,11 @@
 ### Node ###
 
 *.sqlite3
-dist
+*.zip
+.github
+src
+tsconfig.json
+types
 
 # Logs
 logs
