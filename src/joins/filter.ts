@@ -16,23 +16,11 @@ export class JoinsFilter<
     this.joins = joins;
   }
 
-  private and_or_maker(
-    values: ComparisonJoinType<Value1, Value2>[],
-    type: "OR" | "AND"
-  ) {
-    if (values.length === 1) {
-      this.buildTextArray.push(`${values[0]}`);
-      return this;
-    }
-    this.buildTextArray.push(`${values.join(` ${type} `)}`);
-    return this;
-  }
-
   and(
     ...values: `${keyof Value1 extends string
-      ? keyof Value1
+      ? keyof Value1 | `'${string}'` | number
       : never} ${ComparisonOperators} ${keyof Value2 extends string
-      ? keyof Value2
+      ? keyof Value2 | `'${string}'` | number
       : never}`[]
   ) {
     if (!values || values.length === 0) return this;
@@ -49,10 +37,10 @@ export class JoinsFilter<
   }
 
   or(
-    ...values: `${keyof Value1 extends string
-      ? keyof Value1
+    ...values: `${keyof Value1 extends string | number
+      ? keyof Value1 | `'${string}'` | number
       : never} ${ComparisonOperators} ${keyof Value2 extends string
-      ? keyof Value2
+      ? keyof Value2 | `'${string}'` | number
       : never}`[]
   ) {
     if (!values || values.length === 0) return this;
@@ -73,11 +61,35 @@ export class JoinsFilter<
     expression: ComparisonOperators,
     value2: keyof Value2
   ) {
-    return `${this.joins.tableL.table}.${String(value1)}${expression}${
-      this.joins.tableR.table
-    }.${String(value2)}` as ComparisonJoinType<Value1, Value2>;
+    const tableLValue = Object.keys(this.joins.tableL.types).includes(
+      String(value1)
+    )
+      ? `${this.joins.tableL.table}.${String(value1)}`
+      : String(value1);
+
+    const tableRValue = Object.keys(this.joins.tableR.types).includes(
+      String(value2)
+    )
+      ? `${this.joins.tableR.table}.${String(value2)}`
+      : String(value2);
+
+    return `${tableLValue}${expression}${tableRValue}` as ComparisonJoinType<
+      Value1,
+      Value2
+    >;
   }
 
+  private and_or_maker(
+    values: ComparisonJoinType<Value1, Value2>[],
+    type: "OR" | "AND"
+  ) {
+    if (values.length === 1) {
+      this.buildTextArray.push(`${values[0]}`);
+      return this;
+    }
+    this.buildTextArray.push(`${values.join(` ${type} `)}`);
+    return this;
+  }
   build() {
     const text = `${this.buildTextArray
       .map((txt) => `(${txt})`)
