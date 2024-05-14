@@ -5,7 +5,6 @@
 .github
 src
 tsconfig.json
-types
 
 # Logs
 logs
