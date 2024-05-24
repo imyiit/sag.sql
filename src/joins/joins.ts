@@ -2,7 +2,7 @@ import Database, { Settings } from "..";
 import type {
   ComparisonJoinType,
   JoinsTypes,
-  OptionType,
+  OptionJoinsType,
   SqLiteType,
   SqlReturnTypes,
 } from "../../types";
@@ -50,14 +50,19 @@ export class Joins<
   }
 
   find(
-    options?: Omit<OptionType<Value1>, "filter"> & {
+    options?: Omit<OptionJoinsType<Value1>, "filter"> & {
       filter?: ComparisonJoinType<Value1, Value2>;
+      where?: ComparisonJoinType<Value1, Value2>;
     }
   ) {
     const get =
       options && options.get
         ? options.get === "all"
-          ? "*"
+          ? `*`
+          : options.get === "left"
+          ? `${this.tableL.table}.*`
+          : options.get === "right"
+          ? `${this.tableR.table}.*`
           : GetText(options.get)
         : "*";
 
@@ -67,7 +72,9 @@ export class Joins<
       .prepare(
         `SELECT ${get} FROM ${this.tableL.table} ${this.join} ${
           this.tableR.table
-        } ${options?.filter ? `ON (${options.filter})` : ""} ${limit_text}`
+        } ${options?.filter ? `ON ${options.filter}` : ""} ${
+          options?.where ? "WHERE " + options.where : ""
+        } ${limit_text}`
       )
       .all() as SqlReturnTypes<Value1>[] | undefined;
   }

@@ -1,4 +1,9 @@
-import { ComparisonOperators } from ".";
+import {
+  ComparisonOperators,
+  ComparisonType,
+  LimitType,
+  NumericFilter,
+} from ".";
 
 export type JoinsTypes =
   | "INNER JOIN"
@@ -14,3 +19,13 @@ export type ComparisonJoinType<Value1, Value2> = `${keyof Value1 extends string
   | true
   | false
   | `'${string}'`}`;
+
+export type OptionJoinsType<Value> = {
+  get?: "all" | (keyof Value)[] | "right" | "left";
+  limit?: LimitType;
+  filter?: Partial<NumericFilter<Value>> | ComparisonType<Value>;
+  orderBy?: `${keyof Value extends string ? keyof Value : never}${
+    | ""
+    | " ASC"
+    | " DESC"}`[];
+};
