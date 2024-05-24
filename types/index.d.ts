@@ -49,7 +49,7 @@ export type SqltoJs<T> = T extends SqlProps<TEXT>
 export type SqlReturnValueType<Val, NN> = NN extends true
   ? SqltoJs<Val>
   : Val extends `${infer _} ${
-      | `NOT NULL${infer _}`
+      | `NOT NULL`
       | "PRIMARY KEY"
       | `NOT NULL${infer _}PRIMARY KEY`}${infer _}`
   ? SqltoJs<Val>
@@ -61,7 +61,7 @@ export type SqlValueTypes<Obj extends object> = {
     : never]?: SqlReturnValueType<Obj[K], false>;
 } & {
   [K in keyof Obj as Obj[K] extends `${AllSqlProps} ${
-    | `NOT NULL${infer _}`
+    | `NOT NULL`
     | "PRIMARY KEY"
     | `NOT NULL${infer _}PRIMARY KEY`}`
     ? K
@@ -78,7 +78,7 @@ export type SqlReturnTypes<Obj extends object> = {
     : never]?: SqlReturnValueType<Obj[K], false>;
 } & {
   [K in keyof Obj as Obj[K] extends `${AllSqlProps} ${
-    | `NOT NULL${infer _}`
+    | `NOT NULL`
     | "PRIMARY KEY"
     | `NOT NULL${infer _}PRIMARY KEY`}${infer _}`
     ? K
