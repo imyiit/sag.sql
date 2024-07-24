@@ -26,10 +26,10 @@ export class Joins<
     this.tableL = tableL;
     this.tableR = tableR;
 
-    if (this.tableL.folder_name !== this.tableR.folder_name)
+    if (this.tableL?.folder_name !== this.tableR?.folder_name)
       throw new SagError("Database", SagErrorMsg.NotSameFolder);
 
-    if (this.tableL.table === this.tableR.table)
+    if (this.tableL?.table === this.tableR?.table)
       throw new SagError("Database", SagErrorMsg.NotSameTableName);
 
     this.join = join ? join : "INNER JOIN";
